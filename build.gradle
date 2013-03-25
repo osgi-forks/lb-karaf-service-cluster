@@ -1,0 +1,31 @@
+
+subprojects {
+
+    apply plugin: 'java'
+
+    group = 'lb'
+    sourceCompatibility = 1.6
+
+    repositories {
+        maven { url 'http://repo.springsource.org/release' }
+        maven { url 'http://repo1.maven.org/maven2' }
+        maven { url 'http://repo2.maven.org/maven2' }
+        maven { url 'http://download.eclipse.org/rt/eclipselink/maven.repo' }
+        maven { url 'http://repository.jboss.org/nexus/content/repositories/releases' }
+        maven { url 'http://repository.jboss.org/nexus/content/groups/public/' }
+        maven { url 'http://snapshots.jboss.org/maven2/' }
+        maven { url 'http://download.oracle.com/maven' }
+        maven { url 'https://oss.sonatype.org/content/repositories/releases' }
+    }
+
+    dependencies {
+        compile 'org.apache.commons:commons-lang3:3.1'
+        compile 'org.slf4j:slf4j-api:1.7.2'
+        compile 'org.osgi:core:4.3.0'
+        compile 'org.osgi:org.osgi.compendium:4.3.0'
+        compile 'com.google.guava:guava:14.0.1'
+        compile 'com.hazelcast:hazelcast-client:2.5'
+    }
+}
+
+

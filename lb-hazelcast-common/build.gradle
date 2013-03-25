@@ -1,0 +1,29 @@
+apply plugin: 'osgi'
+apply plugin: 'maven'
+
+version  = '1.0.0.SNAPSHOT'
+group    = 'osgi-hazelcast'
+
+project.ext {
+    bundleInportPackages = [ '*' ]
+    bundleExportPackages = [ '*' ]
+}
+
+
+jar {
+    baseName = 'lb-hazelcast-common'
+
+    manifest {
+        classesDir = new File("$buildDir/classes/main")
+        classpath  = project.runtimeClasspath
+
+        instruction 'Import-Package'      , bundleInportPackages.join(',')
+        instruction 'Export-Package'      , bundleExportPackages.join(',')
+        instruction 'Bundle-Description'  , 'LB :: OSGi :: Hazelcast'
+        instruction 'Bundle-Name'         , 'LB :: OSGi :: Hazelcast'
+        instruction 'Bundle-SymbolicName' , project.name
+        instruction 'Bundle-Version'      , version
+    }
+}
+
+

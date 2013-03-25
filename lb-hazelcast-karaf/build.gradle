@@ -1,0 +1,38 @@
+apply plugin: 'osgi'
+apply plugin: 'maven'
+
+version  = '1.0.0.SNAPSHOT'
+group    = 'karaf-hazelcast'
+
+project.ext {
+    bundleInportPackages = [ '*' ]
+    bundleExportPackages = [ '*' ]
+}
+
+dependencies {
+    compile project(':lb-hazelcast-common')
+
+    compile 'org.apache.felix:org.apache.felix.configadmin:1.6.0'
+    compile 'org.apache.karaf.shell:org.apache.karaf.shell.console:2.3.0'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.1.4'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.1.4'
+}
+
+jar {
+    baseName = 'lb-hazelcast-karaf'
+
+    manifest {
+        classesDir = new File("$buildDir/classes/main")
+        classpath  = project.runtimeClasspath
+
+        instruction 'Import-Package'      , bundleInportPackages.join(',')
+        instruction 'Export-Package'      , bundleExportPackages.join(',')
+        instruction 'Bundle-Description'  , 'LB :: Karaf :: Hazelcast'
+        instruction 'Bundle-Name'         , 'LB :: Karaf :: Hazelcast'
+        instruction 'Bundle-SymbolicName' , project.name
+        instruction 'Bundle-Version'      , version
+    }
+}
+
+
