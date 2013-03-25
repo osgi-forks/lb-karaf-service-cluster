@@ -35,7 +35,7 @@ import java.util.Set;
 public class ClusteredServiceManager implements IOSGiServiceListener, IClusteredServiceManager {
     private BundleContext m_bundleContext;
     private IHazelcastManager m_hazelcastManager;
-    private Map<String,Set<ClusteredServiceWrapper>> m_serviceGroups;
+    private Map<String,ClusteredServiceGroup> m_serviceGroups;
 
     /**
      * c-tor
@@ -70,24 +70,17 @@ public class ClusteredServiceManager implements IOSGiServiceListener, IClustered
     @Override
     public void bind(ServiceReference reference) {
         if(reference != null) {
-            String  grp  = OSGiUtils.getString(reference,Constants.SERVICE_GROUP);
-            String  id   = OSGiUtils.getString(reference,Constants.SERVICE_ID);
-            Integer rank = OSGiUtils.getInteger(reference,Constants.SERVICE_RANK);
+            String grp = OSGiUtils.getString(reference,Constants.SERVICE_GROUP);
+            String id  = OSGiUtils.getString(reference,Constants.SERVICE_ID);
 
             if(StringUtils.isNotBlank(grp) && StringUtils.isNotBlank(id)) {
-                Set<ClusteredServiceWrapper> services = m_serviceGroups.get(grp);
+                ClusteredServiceGroup services = m_serviceGroups.get(grp);
                 if(services == null) {
-                    services = Sets.newTreeSet();
+                    services = new ClusteredServiceGroup(m_bundleContext,grp);
                     m_serviceGroups.put(grp,services);
                 }
 
-                services.add(
-                    new ClusteredServiceWrapper(
-                        grp,
-                        id,
-                        (IClusteredService)m_bundleContext.getService(reference),
-                        rank,
-                        reference));
+                services.bind(reference);
             }
         }
     }
@@ -103,17 +96,9 @@ public class ClusteredServiceManager implements IOSGiServiceListener, IClustered
             String id  = OSGiUtils.getString(reference,Constants.SERVICE_ID);
 
             if(StringUtils.isNotBlank(grp) && StringUtils.isNotBlank(id)) {
-                Set<ClusteredServiceWrapper> services = m_serviceGroups.get(grp);
+                ClusteredServiceGroup services = m_serviceGroups.get(grp);
                 if(services != null) {
-                    ClusteredServiceWrapper service = null;
-                    for(ClusteredServiceWrapper s : services) {
-                        if(s.is(grp,id)) {
-                            service = s;
-                            break;
-                        }
-                    }
-
-                    services.remove(service);
+                    services.unbind(reference);
                 }
             }
         }

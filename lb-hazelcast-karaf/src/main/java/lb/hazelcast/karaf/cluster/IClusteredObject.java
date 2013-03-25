@@ -19,5 +19,14 @@ package lb.hazelcast.karaf.cluster;
 /**
  *
  */
-public interface IClusteredService extends IClusteredObject{
+public interface IClusteredObject {
+    /**
+     *
+     */
+    public void activate();
+
+    /**
+     *
+     */
+    public void deactivate();
 }
