@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package lb.hazelcast.karaf.cluster;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import lb.hazelcast.common.osgi.IHazelcastManager;
 import lb.osgi.IOSGiServiceListener;
 import lb.osgi.OSGiUtils;
@@ -27,7 +25,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
