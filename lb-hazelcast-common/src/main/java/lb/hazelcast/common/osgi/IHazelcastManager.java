@@ -18,6 +18,10 @@ package lb.hazelcast.common.osgi;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 /**
  *
  */
@@ -27,4 +31,33 @@ public interface IHazelcastManager {
      * @return
      */
     public HazelcastInstance getInstance();
+
+    /**
+     *
+     * @return
+     */
+    public HazelcastNode getNode();
+
+    /**
+     *
+     * @return
+     */
+    public Collection<HazelcastNode> listNodes();
+
+    /**
+     *
+     * @param mapName
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public <K,V> Map<K,V> getMap(String mapName);
+
+    /**
+     *
+     * @param listName
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> getList(String listName);
 }

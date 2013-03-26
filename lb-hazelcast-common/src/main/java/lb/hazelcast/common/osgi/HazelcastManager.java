@@ -17,15 +17,21 @@
 
 package lb.hazelcast.common.osgi;
 
+import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
+import com.hazelcast.core.Cluster;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.InstanceEvent;
 import com.hazelcast.core.InstanceListener;
+import com.hazelcast.core.Member;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -102,6 +108,35 @@ public class HazelcastManager implements IHazelcastManager, InstanceListener {
     @Override
     public HazelcastInstance getInstance() {
         return m_instance;
+    }
+
+    @Override
+    public <K,V> Map<K,V> getMap(String mapName) {
+        return m_instance.getMap(mapName);
+    }
+
+    @Override
+    public <T> List<T> getList(String listName) {
+        return m_instance.getList(listName);
+    }
+
+    @Override
+    public HazelcastNode getNode() {
+        Cluster cluster = m_instance.getCluster();
+        return (cluster != null) ? new HazelcastNode(cluster.getLocalMember()) : null;
+    }
+
+    @Override
+    public Collection<HazelcastNode> listNodes() {
+        List<HazelcastNode> nodes = Lists.newArrayList();
+        Cluster cluster = m_instance.getCluster();
+        if(cluster != null) {
+            for(Member member : cluster.getMembers()) {
+                nodes.add(new HazelcastNode(member));
+            }
+        }
+
+        return nodes;
     }
 
     // *************************************************************************
