@@ -30,79 +30,9 @@ import java.util.Set;
  */
 public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceListener{
 
-    /**
-     *
-     */
-    private class ServiceWrapper implements IClusteredService, Comparable<ServiceWrapper> {
-        private final Integer m_serviceRanking;
-        private final String m_serviceId;
-        private final IClusteredService m_clusteredService;
-        private final ServiceReference m_serviceReference;
-
-        /**
-         * c-tor
-         *
-         * @param serviceRanking
-         * @param serviceId
-         * @param clusteredService
-         * @param serviceReference
-         */
-        public ServiceWrapper(
-            Integer serviceRanking,String serviceId,IClusteredService clusteredService,ServiceReference serviceReference) {
-            m_serviceRanking = serviceRanking;
-            m_serviceId = serviceId;
-            m_clusteredService = clusteredService;
-            m_serviceReference = serviceReference;
-        }
-
-        /**
-         *
-         * @param serviceId
-         * @return
-         */
-        public boolean is(String serviceId) {
-            return StringUtils.equals(m_serviceId,serviceId);
-        }
-
-        /**
-         *
-         */
-        @Override
-        public void activate() {
-            m_clusteredService.activate();
-        }
-
-        /**
-         *
-         */
-        @Override
-        public void deactivate() {
-            m_clusteredService.deactivate();
-        }
-
-        /**
-         *
-         * @param service
-         * @return
-         */
-        @Override
-        public int compareTo(ServiceWrapper service) {
-            return m_serviceRanking.compareTo(service.m_serviceRanking) ;
-        }
-
-        /**
-         *
-         * @return
-         */
-        public ServiceReference getServiceReference() {
-            return m_serviceReference;
-        }
-
-    }
-
     private BundleContext m_bundleContext;
     private String m_groupId;
-    private Set<ServiceWrapper> m_services;
+    private Set<ClusteredServiceWrapper> m_services;
 
     /**
      * c-tor
@@ -111,8 +41,8 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
      * @param groupId
      */
     public ClusteredServiceGroup(BundleContext bundelContext,String groupId) {
-        m_bundleContext = bundelContext;
         m_groupId = m_groupId;
+        m_bundleContext = bundelContext;
         m_services = Sets.newTreeSet();
     }
 
@@ -136,19 +66,13 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
      */
     @Override
     public void bind(ServiceReference reference) {
-        String  grp  = OSGiUtils.getString(reference,Constants.SERVICE_GROUP);
-        String  id   = OSGiUtils.getString(reference,Constants.SERVICE_ID);
-        Integer rank = OSGiUtils.getInteger(reference, Constants.SERVICE_RANK);
+        String grp = OSGiUtils.getString(reference,Constants.SERVICE_GROUP);
+        String id  = OSGiUtils.getString(reference,Constants.SERVICE_ID);
 
         if(StringUtils.isNotBlank(grp) && StringUtils.isNotBlank(id)) {
-            m_bundleContext.getService(reference);
-
-            m_services.add(
-                new ServiceWrapper(
-                    rank,
-                    id,
-                    (IClusteredService)m_bundleContext.getService(reference),reference)
-            );
+            if(StringUtils.equals(m_groupId,grp)) {
+                m_services.add(new ClusteredServiceWrapper(m_bundleContext,reference));
+            }
         }
     }
 
@@ -158,15 +82,16 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
      */
     @Override
     public void unbind(ServiceReference reference) {
-        String  grp  = OSGiUtils.getString(reference,Constants.SERVICE_GROUP);
-        String  id   = OSGiUtils.getString(reference,Constants.SERVICE_ID);
-        Integer rank = OSGiUtils.getInteger(reference,Constants.SERVICE_RANK);
+        String grp = OSGiUtils.getString(reference,Constants.SERVICE_GROUP);
+        String id  = OSGiUtils.getString(reference,Constants.SERVICE_ID);
 
         if(StringUtils.isNotBlank(grp) && StringUtils.isNotBlank(id)) {
-            ServiceWrapper sw = findService(id);
-            if(sw != null) {
-                m_services.remove(sw);
-                m_bundleContext.ungetService(sw.getServiceReference());
+            if(StringUtils.equals(m_groupId,grp)) {
+                ClusteredServiceWrapper service = findService(id);
+                if(service != null) {
+                    service.unget();
+                    m_services.remove(service);
+                }
             }
         }
     }
@@ -176,9 +101,9 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
      * @param serviceId
      * @return
      */
-    private ServiceWrapper findService(String serviceId) {
-        ServiceWrapper wrapper = null;
-        for(ServiceWrapper sw : m_services) {
+    private ClusteredServiceWrapper findService(String serviceId) {
+        ClusteredServiceWrapper wrapper = null;
+        for(ClusteredServiceWrapper sw : m_services) {
             if(sw.is(serviceId)) {
                 wrapper = sw;
                 break;
