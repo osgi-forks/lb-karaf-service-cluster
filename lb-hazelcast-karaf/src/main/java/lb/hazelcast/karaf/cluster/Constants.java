@@ -23,5 +23,6 @@ public class Constants {
     public static final String SERVICE_ID    = "lb.karaf.cluster.service.id";
     public static final String SERVICE_GROUP = "lb.karaf.cluster.service.group";
     public static final String SERVICE_RANK  = "lb.karaf.cluster.service.rank";
+    public static final String CLUSTER_LOCK  = "lb.karaf.cluster.lock";
 }
 

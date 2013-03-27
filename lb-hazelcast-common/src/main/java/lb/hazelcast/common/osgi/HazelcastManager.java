@@ -22,6 +22,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ILock;
 import com.hazelcast.core.InstanceEvent;
 import com.hazelcast.core.InstanceListener;
 import com.hazelcast.core.Member;
@@ -53,7 +54,7 @@ public class HazelcastManager implements IHazelcastManager, InstanceListener {
      * c-tor
      *
      * @param context
-     * @param cfg
+     * @param config
      * @param config
      */
     public HazelcastManager(
@@ -118,6 +119,11 @@ public class HazelcastManager implements IHazelcastManager, InstanceListener {
     @Override
     public <T> List<T> getList(String listName) {
         return m_instance.getList(listName);
+    }
+
+    @Override
+    public ILock getLock(String lockName) {
+        return m_instance.getLock(lockName);
     }
 
     @Override

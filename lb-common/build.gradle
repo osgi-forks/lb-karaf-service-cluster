@@ -10,11 +10,12 @@ project.ext {
 }
 
 dependencies {
-    compile project(':lb-common')
+    compile 'org.apache.felix:org.apache.felix.configadmin:1.6.0'
+    compile 'org.apache.karaf.shell:org.apache.karaf.shell.console:2.3.0'
 }
 
 jar {
-    baseName = 'lb-hazelcast-common'
+    baseName = 'lb-common'
 
     manifest {
         classesDir = new File("$buildDir/classes/main")
@@ -22,8 +23,8 @@ jar {
 
         instruction 'Import-Package'      , bundleInportPackages.join(',')
         instruction 'Export-Package'      , bundleExportPackages.join(',')
-        instruction 'Bundle-Description'  , 'LB :: OSGi :: Hazelcast'
-        instruction 'Bundle-Name'         , 'LB :: OSGi :: Hazelcast'
+        instruction 'Bundle-Description'  , 'LB :: Common'
+        instruction 'Bundle-Name'         , 'LB :: Common'
         instruction 'Bundle-SymbolicName' , project.name
         instruction 'Bundle-Version'      , version
     }

@@ -17,11 +17,10 @@
 package lb.hazelcast.karaf.cluster;
 
 import com.google.common.collect.Maps;
-import lb.hazelcast.common.osgi.IHazelcastManager;
+import lb.hazelcast.common.osgi.HazelcastAwareObject;
 import lb.osgi.IOSGiServiceListener;
 import lb.osgi.OSGiUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import java.util.Map;
@@ -29,35 +28,18 @@ import java.util.Map;
 /**
  *
  */
-public class ClusteredServiceManager implements IOSGiServiceListener, IClusteredServiceManager {
-    private BundleContext m_bundleContext;
-    private IHazelcastManager m_hazelcastManager;
+public class ClusteredServiceManager
+    extends HazelcastAwareObject
+    implements IOSGiServiceListener, IClusteredServiceManager {
+
     private Map<String,ClusteredServiceGroup> m_serviceGroups;
 
     /**
      * c-tor
      */
     public ClusteredServiceManager() {
-        m_bundleContext = null;
-        m_hazelcastManager = null;
         m_serviceGroups = Maps.newConcurrentMap();
 
-    }
-
-    /**
-     *
-     * @param bundleContext
-     */
-    public void setBundleContext(BundleContext bundleContext) {
-        m_bundleContext = bundleContext;
-    }
-
-    /**
-     *
-     * @param hazelcastManager
-     */
-    public void setHazelcastManager(IHazelcastManager hazelcastManager) {
-        m_hazelcastManager = hazelcastManager;
     }
 
     /**
@@ -73,7 +55,7 @@ public class ClusteredServiceManager implements IOSGiServiceListener, IClustered
             if(StringUtils.isNotBlank(grp) && StringUtils.isNotBlank(id)) {
                 ClusteredServiceGroup services = m_serviceGroups.get(grp);
                 if(services == null) {
-                    services = new ClusteredServiceGroup(m_bundleContext,grp);
+                    services = new ClusteredServiceGroup(getBundleContext(),grp);
                     m_serviceGroups.put(grp,services);
                 }
 
