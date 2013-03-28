@@ -16,6 +16,7 @@
  */
 package lb.hazelcast.karaf.cluster;
 
+import lb.cluster.IClusteredService;
 import lb.osgi.OSGiUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.BundleContext;

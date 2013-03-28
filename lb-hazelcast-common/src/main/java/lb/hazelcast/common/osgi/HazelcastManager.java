@@ -23,6 +23,7 @@ import com.hazelcast.core.Cluster;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ILock;
+import com.hazelcast.core.ITopic;
 import com.hazelcast.core.InstanceEvent;
 import com.hazelcast.core.InstanceListener;
 import com.hazelcast.core.Member;
@@ -124,6 +125,11 @@ public class HazelcastManager implements IHazelcastManager, InstanceListener {
     @Override
     public ILock getLock(String lockName) {
         return m_instance.getLock(lockName);
+    }
+
+    @Override
+    public <E> ITopic<E> getTopic(String topicName) {
+        return m_instance.getTopic(topicName);
     }
 
     @Override

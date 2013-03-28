@@ -2,6 +2,7 @@ package lb.hazelcast.karaf.cluster;
 
 import com.google.common.collect.Maps;
 import com.hazelcast.core.ILock;
+import lb.cluster.IClusterAgent;
 import lb.hazelcast.common.osgi.HazelcastAwareObject;
 import lb.osgi.IOSGiLifeCycle;
 import lb.osgi.IOSGiServiceListener;

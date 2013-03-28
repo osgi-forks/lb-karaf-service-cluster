@@ -65,7 +65,7 @@
 
     <reference-list
         id="lb-service-reference-listerner"
-        interface="lb.hazelcast.karaf.cluster.IClusteredService"
+        interface="lb.cluster.IClusteredService"
         availability="optional">
         <reference-listener
             ref="lb-cluster-agent"
@@ -75,7 +75,7 @@
 
     <service ref="lb-cluster-agent">
         <interfaces>
-            <value>lb.hazelcast.karaf.cluster.IClusterAgent</value>
+            <value>lb.cluster.IClusterAgent</value>
         </interfaces>
         <service-properties>
             <entry key="lb.osgi.jndi.service.name" value="lb-cluster-agent"/>

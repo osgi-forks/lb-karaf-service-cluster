@@ -14,10 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package lb.hazelcast.karaf.cluster;
+package lb.cluster;
 
 /**
  *
  */
-public interface IClusteredService extends IClusteredObject{
+public interface IClusteredObject {
+    /**
+     *
+     */
+    public void activate();
+
+    /**
+     *
+     */
+    public void deactivate();
 }

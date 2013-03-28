@@ -17,6 +17,7 @@
 package lb.hazelcast.karaf.cluster;
 
 import com.google.common.collect.Sets;
+import lb.cluster.IClusteredObject;
 import lb.osgi.IOSGiServiceListener;
 import lb.osgi.OSGiUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -1,4 +1,4 @@
-package lb.hazelcast.karaf.cluster;
+package lb.cluster;
 
 /**
  *

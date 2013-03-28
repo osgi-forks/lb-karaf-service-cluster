@@ -18,6 +18,7 @@ package lb.hazelcast.common.osgi;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ILock;
+import com.hazelcast.core.ITopic;
 
 import java.util.Collection;
 import java.util.List;
@@ -68,4 +69,12 @@ public interface IHazelcastManager {
      * @return
      */
     public ILock getLock(String lockName);
+
+    /**
+     *
+     * @param topicName
+     * @param <E>
+     * @return
+     */
+    public <E> ITopic<E> getTopic(String topicName);
 }
