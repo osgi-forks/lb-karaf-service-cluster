@@ -14,31 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package osgi;
+package lb.osgi;
 
 import org.osgi.framework.ServiceReference;
 
 /**
  *
  */
-public class OSGiUtils {
+public interface IOSGiServiceListener {
     /**
      *
      * @param reference
-     * @param key
-     * @return
      */
-    public static String getString(final ServiceReference reference,final String key) {
-        return (String)reference.getProperty(key);
-    }
+    public void bind(ServiceReference reference);
 
     /**
      *
      * @param reference
-     * @param key
-     * @return
      */
-    public static Integer getInteger(final ServiceReference reference,final String key) {
-        return (Integer)reference.getProperty(key);
-    }
+    public void unbind(ServiceReference reference);
 }

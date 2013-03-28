@@ -22,6 +22,8 @@ import lb.osgi.OSGiUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -29,6 +31,8 @@ import java.util.Set;
  *
  */
 public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceListener{
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClusteredServiceGroup.class);
 
     private BundleContext m_bundleContext;
     private String m_groupId;
@@ -48,9 +52,18 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
 
     /**
      *
+     * @return
+     */
+    public String getGroupId() {
+        return m_groupId;
+    }
+
+    /**
+     *
      */
     @Override
     public void activate() {
+        LOGGER.debug("Activate <{}>",m_groupId);
     }
 
     /**
@@ -58,6 +71,7 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
      */
     @Override
     public void deactivate() {
+        LOGGER.debug("Deactivate <{}>",m_groupId);
     }
 
     /**

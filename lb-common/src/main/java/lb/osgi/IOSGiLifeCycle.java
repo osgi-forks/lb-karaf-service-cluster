@@ -1,4 +1,4 @@
-package osgi;
+package lb.osgi;
 
 /**
  *

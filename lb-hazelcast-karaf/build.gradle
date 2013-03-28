@@ -1,4 +1,4 @@
-apply plugin: 'osgi'
+apply plugin: 'lb.osgi'
 apply plugin: 'maven'
 
 version  = '1.0.0.SNAPSHOT'
@@ -10,6 +10,7 @@ project.ext {
 }
 
 dependencies {
+    compile project(':lb-common')
     compile project(':lb-hazelcast-common')
 
     compile 'org.apache.felix:org.apache.felix.configadmin:1.6.0'

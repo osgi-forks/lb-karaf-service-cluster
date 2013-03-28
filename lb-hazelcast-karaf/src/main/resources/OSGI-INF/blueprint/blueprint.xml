@@ -1,5 +1,5 @@
 <blueprint
-        xmlns       = "http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xmlns       = "http://www.lb.osgi.org/xmlns/blueprint/v1.0.0"
         xmlns:cm    = "http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <!-- ******************************************************************* -->
@@ -46,7 +46,7 @@
             <value>lb.hazelcast.common.osgiosgi.IHazelcastManager</value>
         </interfaces>
         <service-properties>
-            <entry key="osgi.jndi.service.name" value="lb.hazelcast.manager"/>
+            <entry key="lb.osgi.jndi.service.name" value="lb.hazelcast.manager"/>
         </service-properties>
     </service>
 
@@ -78,7 +78,7 @@
             <value>lb.hazelcast.karaf.cluster.IClusteredServiceManager</value>
         </interfaces>
         <service-properties>
-            <entry key="osgi.jndi.service.name" value="lb-clustered-service-manager"/>
+            <entry key="lb.osgi.jndi.service.name" value="lb-clustered-service-manager"/>
         </service-properties>
     </service>
 
