@@ -1,4 +1,4 @@
-apply plugin: 'lb.osgi'
+apply plugin: 'osgi'
 apply plugin: 'maven'
 
 version  = '1.0.0.SNAPSHOT'
@@ -21,12 +21,14 @@ jar {
         classesDir = new File("$buildDir/classes/main")
         classpath  = project.runtimeClasspath
 
-        instruction 'Import-Package'      , bundleInportPackages.join(',')
-        instruction 'Export-Package'      , bundleExportPackages.join(',')
-        instruction 'Bundle-Description'  , 'LB :: Common'
-        instruction 'Bundle-Name'         , 'LB :: Common'
-        instruction 'Bundle-SymbolicName' , project.name
-        instruction 'Bundle-Version'      , version
+        instruction 'Import-Package' , bundleInportPackages.join(',')
+        instruction 'Export-Package' , bundleExportPackages.join(',')
+        attributes(
+                'Bundle-Description'     : 'LB :: Common',
+                'Bundle-Name'            : 'LB :: Common',
+                'Bundle-SymbolicName'    : project.name,
+                'Bundle-Version'         : version,
+        )
     }
 }
 

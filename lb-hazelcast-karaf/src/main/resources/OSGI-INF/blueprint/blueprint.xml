@@ -1,5 +1,5 @@
 <blueprint
-        xmlns       = "http://www.lb.osgi.org/xmlns/blueprint/v1.0.0"
+        xmlns       = "http://www.osgi.org/xmlns/blueprint/v1.0.0"
         xmlns:cm    = "http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <!-- ******************************************************************* -->
@@ -8,10 +8,10 @@
 
     <cm:property-placeholder persistent-id="lb.cluster.hz" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="hz.cache.config"    value="./etc/hazelcast-cache.xml"/>
-            <cm:property name="hz.cache.name"      value="bt"/>
-            <cm:property name="hz.cache.type"      value="server"/>
-            <cm:property name="mediator.id"        value="bt"/>
+            <cm:property name="hz.cache.config" value="./etc/hazelcast-cache.xml"/>
+            <cm:property name="hz.cache.name"   value="karaf-cluster"/>
+            <cm:property name="cluster.id"      value="ha1"/>
+            <cm:property name="cluster.group"   value="G1,G2,G3"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -20,7 +20,7 @@
     <!-- ******************************************************************* -->
 
     <bean id             = "lb-hazelcast-classloader"
-          class          = "lb.hazelcast.common.osgiHazelcastBundleClassloader"
+          class          = "lb.hazelcast.common.osgi.HazelcastBundleClassLoader"
           init-method    = "init"
           destroy-method = "destroy"
           scope          = "singleton"/>
@@ -32,7 +32,7 @@
     </bean>
 
     <bean id             = "lb-hazelcast-manager"
-          class          = "lb.hazelcast.common.osgiosgi.HazelcastManager"
+          class          = "lb.hazelcast.common.osgi.HazelcastManager"
           init-method    = "init"
           destroy-method = "destroy"
           scope          = "singleton">
@@ -43,7 +43,7 @@
 
     <service ref="lb-hazelcast-manager">
         <interfaces>
-            <value>lb.hazelcast.common.osgiosgi.IHazelcastManager</value>
+            <value>lb.hazelcast.common.osgi.IHazelcastManager</value>
         </interfaces>
         <service-properties>
             <entry key="lb.osgi.jndi.service.name" value="lb.hazelcast.manager"/>
@@ -54,31 +54,31 @@
     <!--                                                                     -->
     <!-- ******************************************************************* -->
 
-    <bean id    = "lb-clustered-service-manager"
-          class = "lb.hazelcast.karaf.cluster.ClusteredServiceManager"
+    <bean id    = "lb-cluster-agent"
+          class = "lb.hazelcast.karaf.cluster.ClusterAgent"
           scope = "singleton">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <property name="clusterId"        value="${cluster.id}"/>
+        <property name="clusterGroups"    value="${cluster.groups}"/>
+        <property name="bundleContext"    ref="blueprintBundleContext"/>
         <property name="hazelcastManager" ref="lb-hazelcast-manager"/>
     </bean>
 
     <reference-list
-        id="serviceReferenceListTwo"
+        id="lb-service-reference-listerner"
         interface="lb.hazelcast.karaf.cluster.IClusteredService"
         availability="optional">
         <reference-listener
-            ref="lb-lustered-service-manager"
+            ref="lb-cluster-agent"
             bind-method="bind"
             unbind-method="unbind"/>
     </reference-list>
 
-
-
-    <service ref="lb-clustered-service-manager">
+    <service ref="lb-cluster-agent">
         <interfaces>
-            <value>lb.hazelcast.karaf.cluster.IClusteredServiceManager</value>
+            <value>lb.hazelcast.karaf.cluster.IClusterAgent</value>
         </interfaces>
         <service-properties>
-            <entry key="lb.osgi.jndi.service.name" value="lb-clustered-service-manager"/>
+            <entry key="lb.osgi.jndi.service.name" value="lb-cluster-agent"/>
         </service-properties>
     </service>
 
