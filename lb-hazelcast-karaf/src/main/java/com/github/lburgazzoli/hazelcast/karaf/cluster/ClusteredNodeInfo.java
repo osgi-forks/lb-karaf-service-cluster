@@ -14,19 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.cluster;
+package com.github.lburgazzoli.hazelcast.karaf.cluster;
+
+import com.github.lburgazzoli.cluster.IClusterNode;
 
 /**
  *
  */
-public class DefaultClusterNode implements IClusterNode {
+public class ClusteredNodeInfo implements IClusterNode {
     private String m_nodeId;
     private String m_address;
 
     /**
      *
      */
-    public DefaultClusterNode() {
+    public ClusteredNodeInfo() {
         this(null,null);
     }
 
@@ -36,7 +38,7 @@ public class DefaultClusterNode implements IClusterNode {
      * @param nodeId
      * @param address
      */
-    public DefaultClusterNode(String nodeId,String address) {
+    public ClusteredNodeInfo(String nodeId, String address) {
         m_nodeId = nodeId;
         m_address = address;
     }

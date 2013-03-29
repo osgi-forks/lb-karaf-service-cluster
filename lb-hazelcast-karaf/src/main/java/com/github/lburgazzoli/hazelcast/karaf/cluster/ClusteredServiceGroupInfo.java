@@ -3,7 +3,7 @@ package com.github.lburgazzoli.hazelcast.karaf.cluster;
 /**
  *
  */
-public class ClusteredGroupInfo {
+public class ClusteredServiceGroupInfo {
     private String m_groupId;
     private String m_grpupState;
     private String m_clusterId;
@@ -11,7 +11,7 @@ public class ClusteredGroupInfo {
     /**
      * c-tor
      */
-    public ClusteredGroupInfo() {
+    public ClusteredServiceGroupInfo() {
         this(null,null,null);
     }
 
@@ -22,7 +22,7 @@ public class ClusteredGroupInfo {
      * @param grpupState
      * @param clusterId
      */
-    public ClusteredGroupInfo(String groupId, String grpupState, String clusterId) {
+    public ClusteredServiceGroupInfo(String groupId, String grpupState, String clusterId) {
         m_groupId = groupId;
         m_grpupState = grpupState;
         m_clusterId = clusterId;

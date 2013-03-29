@@ -17,6 +17,7 @@
 package com.github.lburgazzoli.hazelcast.karaf.cluster;
 
 import com.github.lburgazzoli.cluster.IClusteredObject;
+import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
 import com.github.lburgazzoli.osgi.IOSGiServiceListener;
 import com.github.lburgazzoli.osgi.OSGiUtils;
 import com.google.common.collect.Sets;

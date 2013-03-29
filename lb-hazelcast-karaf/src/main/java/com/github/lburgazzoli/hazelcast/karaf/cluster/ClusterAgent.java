@@ -17,9 +17,9 @@
 package com.github.lburgazzoli.hazelcast.karaf.cluster;
 
 import com.github.lburgazzoli.JsonUtils;
-import com.github.lburgazzoli.cluster.DefaultClusterNode;
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusterNode;
+import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
 import com.github.lburgazzoli.hazelcast.common.osgi.HazelcastAwareObject;
 import com.github.lburgazzoli.osgi.IOSGiLifeCycle;
 import com.github.lburgazzoli.osgi.IOSGiServiceListener;
@@ -105,7 +105,7 @@ public class ClusterAgent
         m_schedulerHander = m_scheduler.scheduleAtFixedRate(this,30,60,TimeUnit.SECONDS);
 
         String jsonString = JsonUtils.encode(
-            new DefaultClusterNode(
+            new ClusteredNodeInfo(
                 m_clusterId,
                 getHazelcastManager().getLocalAddress().getHostAddress()));
 
@@ -164,13 +164,14 @@ public class ClusterAgent
         LOGGER.debug("==== ACTIVATE ====");
         LOGGER.debug("Node <{}> is now the leader", m_clusterId);
 
-        for(ClusteredServiceGroup csg : m_serviceGroups.values()) {
+        /*
+        for(IClusteredServiceGroup csg : m_serviceGroups.values()) {
             try {
                 if(!getGroupRegistry().containsKey(csg.getGroupId())) {
                     csg.activate();
                     getGroupRegistry().put(
                         csg.getGroupId(),
-                        JsonUtils.encode(new ClusteredGroupInfo(
+                        JsonUtils.encode(new ClusteredServiceGroupInfo(
                             csg.getGroupId(),
                             Constants.GROUP_STATE_ACTIVE,
                             m_clusterId
@@ -181,20 +182,22 @@ public class ClusterAgent
                 LOGGER.warn("Activate - Exception",e);
             }
         }
+        */
     }
 
     private void deactivate() {
         LOGGER.debug("==== DEACTIVATE ====");
         LOGGER.debug("Node <{}> is not more the leader",m_clusterId);
 
-        for(ClusteredServiceGroup csg : m_serviceGroups.values()) {
+        /*
+        for(IClusteredServiceGroup csg : m_serviceGroups.values()) {
             try {
                 csg.deactivate();
                 if(getGroupRegistry().containsKey(csg.getGroupId())) {
                     csg.activate();
                     getGroupRegistry().put(
                         csg.getGroupId(),
-                        JsonUtils.encode(new ClusteredGroupInfo(
+                        JsonUtils.encode(new ClusteredServiceGroupInfo(
                             csg.getGroupId(),
                             Constants.GROUP_STATE_INACTIVE,
                             m_clusterId
@@ -205,6 +208,7 @@ public class ClusterAgent
                 LOGGER.warn("Dectivate - Exception",e);
             }
         }
+        */
 
         m_leader.set(false);
     }
@@ -237,6 +241,11 @@ public class ClusterAgent
         }
 
         return nodes;
+    }
+
+    @Override
+    public Collection<IClusteredServiceGroup> getServiceGroups() {
+        return null;
     }
 
     // *************************************************************************
@@ -301,7 +310,7 @@ public class ClusterAgent
     private IClusterNode getClusterNode(String id) {
         String jsonData = getClusterRegistry().get(m_clusterId);
         return StringUtils.isNotBlank(jsonData)
-            ? JsonUtils.decode(jsonData,DefaultClusterNode.class)
+            ? JsonUtils.decode(jsonData,ClusteredNodeInfo.class)
             : null;
     }
 
