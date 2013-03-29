@@ -60,7 +60,7 @@ public class ClusteredServiceWrapper implements IClusteredService, Comparable<Cl
      *
      */
     @Override
-    public void activate() {
+    public void activate() throws Exception {
         m_clusteredService.activate();
     }
 
@@ -68,7 +68,7 @@ public class ClusteredServiceWrapper implements IClusteredService, Comparable<Cl
      *
      */
     @Override
-    public void deactivate() {
+    public void deactivate() throws Exception {
         m_clusteredService.deactivate();
     }
 

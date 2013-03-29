@@ -96,6 +96,11 @@
                 <property name="service" ref="lb-cluster-agent"/>
             </action>
         </command>
+        <command name="cluster/group-list">
+            <action class="com.github.lburgazzoli.hazelcast.karaf.cluster.cmd.GroupList">
+                <property name="service" ref="lb-cluster-agent"/>
+            </action>
+        </command>
     </command-bundle>
 
 </blueprint>

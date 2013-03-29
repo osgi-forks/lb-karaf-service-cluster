@@ -63,7 +63,7 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
      *
      */
     @Override
-    public void activate() {
+    public void activate() throws Exception {
         LOGGER.debug("Activate <{}>",m_groupId);
     }
 
@@ -71,7 +71,7 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
      *
      */
     @Override
-    public void deactivate() {
+    public void deactivate() throws Exception {
         LOGGER.debug("Deactivate <{}>",m_groupId);
     }
 

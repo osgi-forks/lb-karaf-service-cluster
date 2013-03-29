@@ -26,5 +26,8 @@ public class Constants {
     public static final String SERVICE_GROUP   = "lb.karaf.cluster.service.group";
     public static final String SERVICE_RANK    = "lb.karaf.cluster.service.rank";
     public static final String CLUSTER_LOCK    = "lb.karaf.cluster.lock";
+
+    public static final String GROUP_STATE_ACTIVE   = "ACTIVE";
+    public static final String GROUP_STATE_INACTIVE = "INACTIVE";
 }
 

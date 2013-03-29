@@ -23,10 +23,10 @@ public interface IClusteredObject {
     /**
      *
      */
-    public void activate();
+    public void activate() throws Exception;
 
     /**
      *
      */
-    public void deactivate();
+    public void deactivate() throws Exception;
 }

@@ -165,7 +165,21 @@ public class ClusterAgent
         LOGGER.debug("Node <{}> is now the leader", m_clusterId);
 
         for(ClusteredServiceGroup csg : m_serviceGroups.values()) {
-            csg.activate();
+            try {
+                if(!getGroupRegistry().containsKey(csg.getGroupId())) {
+                    csg.activate();
+                    getGroupRegistry().put(
+                        csg.getGroupId(),
+                        JsonUtils.encode(new ClusteredGroupInfo(
+                            csg.getGroupId(),
+                            Constants.GROUP_STATE_ACTIVE,
+                            m_clusterId
+                        ))
+                    );
+                }
+            } catch(Exception e) {
+                LOGGER.warn("Activate - Exception",e);
+            }
         }
     }
 
@@ -174,7 +188,22 @@ public class ClusterAgent
         LOGGER.debug("Node <{}> is not more the leader",m_clusterId);
 
         for(ClusteredServiceGroup csg : m_serviceGroups.values()) {
-            csg.deactivate();
+            try {
+                csg.deactivate();
+                if(getGroupRegistry().containsKey(csg.getGroupId())) {
+                    csg.activate();
+                    getGroupRegistry().put(
+                        csg.getGroupId(),
+                        JsonUtils.encode(new ClusteredGroupInfo(
+                            csg.getGroupId(),
+                            Constants.GROUP_STATE_INACTIVE,
+                            m_clusterId
+                        ))
+                    );
+                }
+            } catch(Exception e) {
+                LOGGER.warn("Dectivate - Exception",e);
+            }
         }
 
         m_leader.set(false);
