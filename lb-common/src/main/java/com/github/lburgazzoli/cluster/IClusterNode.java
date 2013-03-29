@@ -20,4 +20,15 @@ package com.github.lburgazzoli.cluster;
  *
  */
 public interface IClusterNode {
+    /**
+     *
+     * @return
+     */
+    public String getId();
+
+    /**
+     *
+     * @return
+     */
+    public String getAddress();
 }

@@ -16,18 +16,25 @@
  */
 package com.github.lburgazzoli.hazelcast.karaf.cluster;
 
+import com.github.lburgazzoli.JsonUtils;
+import com.github.lburgazzoli.cluster.DefaultClusterNode;
 import com.github.lburgazzoli.cluster.IClusterAgent;
+import com.github.lburgazzoli.cluster.IClusterNode;
 import com.github.lburgazzoli.hazelcast.common.osgi.HazelcastAwareObject;
 import com.github.lburgazzoli.osgi.IOSGiLifeCycle;
 import com.github.lburgazzoli.osgi.IOSGiServiceListener;
 import com.github.lburgazzoli.osgi.OSGiUtils;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hazelcast.core.ILock;
+import com.hazelcast.core.IMap;
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -93,12 +100,24 @@ public class ClusterAgent
 
     @Override
     public void init() {
+        LOGGER.debug("Agent == init");
         m_clusterLock = getHazelcastManager().getLock(Constants.CLUSTER_LOCK);
         m_schedulerHander = m_scheduler.scheduleAtFixedRate(this,30,60,TimeUnit.SECONDS);
+
+        String jsonString = JsonUtils.encode(
+            new DefaultClusterNode(
+                m_clusterId,
+                getHazelcastManager().getLocalAddress().getHostAddress()));
+
+        if(StringUtils.isNotBlank(jsonString)) {
+            getClusterRegistry().put(m_clusterId,jsonString);
+        }
+
     }
 
     @Override
     public void destroy() {
+        LOGGER.debug("Agent == destroy");
         if(m_clusterLock != null) {
             if(m_clusterLock.isLocked()) {
                 m_clusterLock.forceUnlock();
@@ -161,6 +180,36 @@ public class ClusterAgent
         m_leader.set(false);
     }
 
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    @Override
+    public String getId() {
+        return m_clusterId;
+    }
+
+    @Override
+    public IClusterNode getLocalNode() {
+        return getClusterNode(m_clusterId);
+    }
+
+    @Override
+    public Collection<IClusterNode> getNodes() {
+        Map<String,String> registry = getClusterRegistry();
+        List<IClusterNode> nodes = Lists.newArrayListWithCapacity(registry.size());
+
+        for(String key : registry.keySet()) {
+            IClusterNode node = getClusterNode(key);
+            if(node != null) {
+                nodes.add(node);
+            }
+        }
+
+        return nodes;
+    }
+
     // *************************************************************************
     //
     // *************************************************************************
@@ -201,5 +250,37 @@ public class ClusterAgent
                 }
             }
         }
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    /**
+     *
+     * @return
+     */
+    private IMap<String,String> getClusterRegistry() {
+        return getHazelcastManager().getMap(Constants.REGISTRY_NODES);
+    }
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    private IClusterNode getClusterNode(String id) {
+        String jsonData = getClusterRegistry().get(m_clusterId);
+        return StringUtils.isNotBlank(jsonData)
+            ? JsonUtils.decode(jsonData,DefaultClusterNode.class)
+            : null;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private IMap<String,String> getGroupRegistry() {
+        return getHazelcastManager().getMap(Constants.REGISTRY_GROUPS);
     }
 }

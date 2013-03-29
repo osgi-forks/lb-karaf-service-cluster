@@ -16,8 +16,27 @@
  */
 package com.github.lburgazzoli.cluster;
 
+import java.util.Collection;
+
 /**
  *
  */
 public interface IClusterAgent {
+    /**
+     *
+     * @return
+     */
+    public String getId();
+
+    /**
+     *
+     * @return
+     */
+    public IClusterNode getLocalNode();
+
+    /**
+     *
+     * @return
+     */
+    public Collection<IClusterNode> getNodes();
 }

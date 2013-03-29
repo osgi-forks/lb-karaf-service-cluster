@@ -16,6 +16,9 @@
  */
 package com.github.lburgazzoli.hazelcast.karaf.cluster;
 
+import com.github.lburgazzoli.cluster.IClusteredObject;
+import com.github.lburgazzoli.osgi.IOSGiServiceListener;
+import com.github.lburgazzoli.osgi.OSGiUtils;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.BundleContext;
@@ -24,10 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
-
-import com.github.lburgazzoli.cluster.IClusteredObject;
-import com.github.lburgazzoli.osgi.IOSGiServiceListener;
-import com.github.lburgazzoli.osgi.OSGiUtils;
 
 /**
  *
@@ -47,7 +46,7 @@ public class ClusteredServiceGroup implements IClusteredObject, IOSGiServiceList
      * @param groupId
      */
     public ClusteredServiceGroup(BundleContext bundelContext,String groupId) {
-        m_groupId = m_groupId;
+        m_groupId = groupId;
         m_bundleContext = bundelContext;
         m_services = Sets.newTreeSet();
     }

@@ -20,9 +20,11 @@ package com.github.lburgazzoli.hazelcast.karaf.cluster;
  *
  */
 public class Constants {
-    public static final String SERVICE_ID    = "lb.karaf.cluster.service.id";
-    public static final String SERVICE_GROUP = "lb.karaf.cluster.service.group";
-    public static final String SERVICE_RANK  = "lb.karaf.cluster.service.rank";
-    public static final String CLUSTER_LOCK  = "lb.karaf.cluster.lock";
+    public static final String REGISTRY_NODES  = "lb.karaf.cluster.registry.nodes";
+    public static final String REGISTRY_GROUPS = "lb.karaf.cluster.registry.groups";
+    public static final String SERVICE_ID      = "lb.karaf.cluster.service.id";
+    public static final String SERVICE_GROUP   = "lb.karaf.cluster.service.group";
+    public static final String SERVICE_RANK    = "lb.karaf.cluster.service.rank";
+    public static final String CLUSTER_LOCK    = "lb.karaf.cluster.lock";
 }
 

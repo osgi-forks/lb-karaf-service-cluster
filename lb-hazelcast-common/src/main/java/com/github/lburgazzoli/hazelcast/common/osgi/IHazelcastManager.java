@@ -17,17 +17,17 @@
 package com.github.lburgazzoli.hazelcast.common.osgi;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.net.InetAddress;
 
 /**
  *
  */
-public interface IHazelcastManager {
+public interface IHazelcastManager  {
     /**
      *
      * @return
@@ -38,13 +38,7 @@ public interface IHazelcastManager {
      *
      * @return
      */
-    public HazelcastNode getNode();
-
-    /**
-     *
-     * @return
-     */
-    public Collection<HazelcastNode> listNodes();
+    public InetAddress getLocalAddress();
 
     /**
      *
@@ -53,7 +47,7 @@ public interface IHazelcastManager {
      * @param <V>
      * @return
      */
-    public <K,V> Map<K,V> getMap(String mapName);
+    public <K,V> IMap<K,V> getMap(String mapName);
 
     /**
      *
@@ -61,7 +55,7 @@ public interface IHazelcastManager {
      * @param <T>
      * @return
      */
-    public <T> List<T> getList(String listName);
+    public <T> IList<T> getList(String listName);
 
     /**
      *

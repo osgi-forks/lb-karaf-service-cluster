@@ -12,6 +12,10 @@ project.ext {
 dependencies {
     compile 'org.apache.felix:org.apache.felix.configadmin:1.6.0'
     compile 'org.apache.karaf.shell:org.apache.karaf.shell.console:2.3.0'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.1.4'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.1.4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.4'
 }
 
 jar {

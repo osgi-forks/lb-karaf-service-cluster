@@ -6,6 +6,9 @@ group    = 'com.github.lburgazzoli'
 
 project.ext {
     bundleInportPackages = [
+        'org.apache.felix.service.command',
+        'org.apache.felix.gogo.commands',
+        'org.apache.karaf.shell.console',
         'com.hazelcast.config',
         '*'
     ]
@@ -22,6 +25,7 @@ dependencies {
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
     compile 'com.fasterxml.jackson.core:jackson-core:2.1.4'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.1.4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.4'
 }
 
 jar {
