@@ -2,7 +2,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 
 version  = '1.0.0.SNAPSHOT'
-group    = 'lb'
+group    = 'com.github.lburgazzoli'
 
 project.ext {
     bundleInportPackages = [ '*' ]
@@ -14,7 +14,7 @@ dependencies {
 }
 
 jar {
-    baseName = 'lb-hazelcast-common'
+    baseName = 'hazelcast-common'
 
     manifest {
         classesDir = new File("$buildDir/classes/main")
@@ -24,8 +24,8 @@ jar {
         instruction 'Export-Package' , bundleExportPackages.join(',')
 
         attributes(
-            'Bundle-Description'     : 'LB :: Hazelcast :: OSGi',
-            'Bundle-Name'            : 'LB :: Hazelcast :: OSGi',
+            'Bundle-Description'     : 'LB :: Hazelcast :: Common',
+            'Bundle-Name'            : 'LB :: Hazelcast :: Common',
             'Bundle-SymbolicName'    : project.name,
             'Bundle-Version'         : version,
         )

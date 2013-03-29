@@ -2,7 +2,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 
 version  = '1.0.0.SNAPSHOT'
-group    = 'lb'
+group    = 'com.github.lburgazzoli'
 
 project.ext {
     bundleInportPackages = [ '*' ]
@@ -15,7 +15,7 @@ dependencies {
 }
 
 jar {
-    baseName = 'lb-common'
+    baseName = 'common'
 
     manifest {
         classesDir = new File("$buildDir/classes/main")
@@ -24,10 +24,10 @@ jar {
         instruction 'Import-Package' , bundleInportPackages.join(',')
         instruction 'Export-Package' , bundleExportPackages.join(',')
         attributes(
-                'Bundle-Description'     : 'LB :: Common',
-                'Bundle-Name'            : 'LB :: Common',
-                'Bundle-SymbolicName'    : project.name,
-                'Bundle-Version'         : version,
+            'Bundle-Description'     : 'LB :: Common',
+            'Bundle-Name'            : 'LB :: Common',
+            'Bundle-SymbolicName'    : project.name,
+            'Bundle-Version'         : version,
         )
     }
 }

@@ -2,7 +2,7 @@ apply plugin: 'osgi'
 apply plugin: 'maven'
 
 version  = '1.0.0.SNAPSHOT'
-group    = 'lb'
+group    = 'com.github.lburgazzoli'
 
 project.ext {
     bundleInportPackages = [
@@ -25,7 +25,7 @@ dependencies {
 }
 
 jar {
-    baseName = 'lb-hazelcast-karaf'
+    baseName = 'hazelcast-karaf'
 
     manifest {
         classesDir = new File("$buildDir/classes/main")
@@ -35,10 +35,10 @@ jar {
         instruction 'Export-Package' , bundleExportPackages.join(',')
 
         attributes(
-                'Bundle-Description'     : 'LB :: Hazelcast :: Karaf',
-                'Bundle-Name'            : 'LB :: Hazelcast :: Karaf',
-                'Bundle-SymbolicName'    : project.name,
-                'Bundle-Version'         : version,
+            'Bundle-Description'     : 'LB :: Hazelcast :: Karaf',
+            'Bundle-Name'            : 'LB :: Hazelcast :: Karaf',
+            'Bundle-SymbolicName'    : project.name,
+            'Bundle-Version'         : version,
         )
     }
 }
