@@ -14,24 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.hazelcast.common.osgi;
+package com.github.lburgazzoli.osgi;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.SynchronousBundleListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.lburgazzoli.osgi.OSGiClassLoader;
 
 /**
  *
  */
-public class HazelcastBundleListener implements SynchronousBundleListener {
-
-    public static final Logger LOGGER =
-        LoggerFactory.getLogger(HazelcastBundleListener.class);
+public class OSGiClassLoaderManager implements SynchronousBundleListener {
 
     private BundleContext m_bundleContext;
     private OSGiClassLoader m_classLoader;
@@ -42,7 +35,7 @@ public class HazelcastBundleListener implements SynchronousBundleListener {
      * @param bundleContext
      * @param classLoader
      */
-    public HazelcastBundleListener(
+    public OSGiClassLoaderManager(
         BundleContext bundleContext,
         OSGiClassLoader classLoader) {
         m_bundleContext = bundleContext;
@@ -91,10 +84,6 @@ public class HazelcastBundleListener implements SynchronousBundleListener {
      * @return
      */
     public boolean isBundleEligible(Bundle bundle) {
-        if(bundle != null) {
-            return bundle.getSymbolicName().startsWith("bt");
-        }
-
         return false;
     }
 }

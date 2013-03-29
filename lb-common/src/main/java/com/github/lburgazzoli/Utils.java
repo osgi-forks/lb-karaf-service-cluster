@@ -14,21 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.hazelcast.common;
+package com.github.lburgazzoli;
 
 /**
  *
  */
-public class HazelcastThread extends Thread {
-
+public class Utils {
     /**
-     * c-tor
      *
      * @param classLoader
+     * @param runnable
+     * @return
      */
-    public HazelcastThread(ClassLoader classLoader,Runnable runnable) {
-        super(runnable);
-        super.setContextClassLoader(classLoader);
+    public static final Thread newThread(ClassLoader classLoader,Runnable runnable) {
+        Thread thread = new Thread(runnable);
+        thread.setContextClassLoader(classLoader);
+
+        return thread;
     }
 }
-

@@ -14,36 +14,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.hazelcast.common.osgi;
+package com.github.lburgazzoli.osgi;
 
-import com.github.lburgazzoli.osgi.BundleContextAware;
+import org.osgi.framework.BundleContext;
 
 /**
  *
  */
-public class HazelcastAwareObject extends BundleContextAware {
-    private IHazelcastManager m_hazelcastManager;
+public class BundleContextAware {
+
+    private BundleContext m_bundleContext;
 
     /**
      *
      */
-    public HazelcastAwareObject() {
-        m_hazelcastManager = null;
+    public BundleContextAware() {
+        this(null);
     }
 
     /**
      *
-     * @param hazelcastManager
+     * @param bundleContext
      */
-    public void setHazelcastManager(IHazelcastManager hazelcastManager) {
-        m_hazelcastManager = hazelcastManager;
+    public BundleContextAware(BundleContext bundleContext) {
+        m_bundleContext = bundleContext;
+    }
+
+    /**
+     *
+     * @param bundleContext
+     */
+    public void setBundleContext(BundleContext bundleContext) {
+        m_bundleContext = bundleContext;
     }
 
     /**
      *
      * @return
      */
-    public IHazelcastManager getHazelcastManager() {
-        return m_hazelcastManager;
+    public BundleContext getBundleContext() {
+        return m_bundleContext;
     }
 }

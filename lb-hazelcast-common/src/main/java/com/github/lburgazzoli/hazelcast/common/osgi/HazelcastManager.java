@@ -16,6 +16,9 @@
  */
 package com.github.lburgazzoli.hazelcast.common.osgi;
 
+import com.github.lburgazzoli.osgi.BundleContextAware;
+import com.github.lburgazzoli.osgi.OSGiClassLoader;
+import com.github.lburgazzoli.osgi.OSGiClassLoaderManager;
 import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Cluster;
@@ -26,7 +29,6 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.InstanceEvent;
 import com.hazelcast.core.InstanceListener;
 import com.hazelcast.core.Member;
-import com.github.lburgazzoli.osgi.OSGiClassLoader;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,36 +41,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  *
  */
-public class HazelcastManager implements IHazelcastManager, InstanceListener {
+public class HazelcastManager extends BundleContextAware implements IHazelcastManager, InstanceListener {
 
     private static final Logger LOGGER =
         LoggerFactory.getLogger(HazelcastManager.class);
 
     private HazelcastInstance m_instance;
-    private BundleContext m_bundelContext;
     private Config m_config;
-    private OSGiClassLoader m_classLoader;
-    private HazelcastBundleListener m_bundleListener;
+    private OSGiClassLoaderManager m_clManager;
     private AtomicBoolean m_active;
 
     /**
      * c-tor
      *
-     * @param context
+     * @param bundleContext
      * @param config
-     * @param config
+     * @param classLoader
      */
-    public HazelcastManager(
-        BundleContext context,
-        Config config,
-        OSGiClassLoader classLoader) {
-        m_classLoader    = classLoader;
-        m_bundleListener = new HazelcastBundleListener(context,m_classLoader);
-        m_bundelContext  = context;
-        m_config         = config;
-        m_active         = new AtomicBoolean(false);
+    public HazelcastManager(BundleContext bundleContext,Config config,OSGiClassLoader classLoader) {
+        super(bundleContext);
 
-        m_config.setClassLoader(m_classLoader);
+        m_clManager = new OSGiClassLoaderManager(bundleContext,classLoader);
+        m_active = new AtomicBoolean(false);
+
+        m_config = config;
+        m_config.setClassLoader(classLoader);
     }
 
     // *************************************************************************
@@ -79,8 +76,8 @@ public class HazelcastManager implements IHazelcastManager, InstanceListener {
         if(m_instance == null) {
             LOGGER.debug("Instance initializing");
 
-            m_bundelContext.addBundleListener(m_bundleListener);
-            m_bundleListener.scanExistingBundles();
+            getBundleContext().addBundleListener(m_clManager);
+            m_clManager.scanExistingBundles();
 
             m_instance = Hazelcast.newHazelcastInstance(m_config);
             m_instance.addInstanceListener(this);
@@ -92,6 +89,8 @@ public class HazelcastManager implements IHazelcastManager, InstanceListener {
     }
 
     public void destroy() {
+        getBundleContext().removeBundleListener(m_clManager);
+
         if(m_instance != null) {
             m_active.set(false);
 
