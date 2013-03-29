@@ -27,6 +27,7 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.InstanceEvent;
 import com.hazelcast.core.InstanceListener;
 import com.hazelcast.core.Member;
+import lb.osgi.OSGiClassLoader;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class HazelcastManager implements IHazelcastManager, InstanceListener {
     private HazelcastInstance m_instance;
     private BundleContext m_bundelContext;
     private Config m_config;
-    private HazelcastBundleClassLoader m_classLoader;
+    private OSGiClassLoader m_classLoader;
     private HazelcastBundleListener m_bundleListener;
     private AtomicBoolean m_active;
 
@@ -61,7 +62,7 @@ public class HazelcastManager implements IHazelcastManager, InstanceListener {
     public HazelcastManager(
         BundleContext context,
         Config config,
-        HazelcastBundleClassLoader classLoader) {
+        OSGiClassLoader classLoader) {
         m_classLoader    = classLoader;
         m_bundleListener = new HazelcastBundleListener(context,m_classLoader);
         m_bundelContext  = context;

@@ -16,6 +16,7 @@
  */
 package lb.hazelcast.common.osgi;
 
+import lb.osgi.OSGiClassLoader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -32,7 +33,7 @@ public class HazelcastBundleListener implements SynchronousBundleListener {
         LoggerFactory.getLogger(HazelcastBundleListener.class);
 
     private BundleContext m_bundleContext;
-    private HazelcastBundleClassLoader m_classLoader;
+    private OSGiClassLoader m_classLoader;
 
     /**
      * c-tor
@@ -42,9 +43,9 @@ public class HazelcastBundleListener implements SynchronousBundleListener {
      */
     public HazelcastBundleListener(
         BundleContext bundleContext,
-        HazelcastBundleClassLoader classLoader) {
+        OSGiClassLoader classLoader) {
         m_bundleContext = bundleContext;
-        m_classLoader   = classLoader;
+        m_classLoader = classLoader;
     }
 
     /**

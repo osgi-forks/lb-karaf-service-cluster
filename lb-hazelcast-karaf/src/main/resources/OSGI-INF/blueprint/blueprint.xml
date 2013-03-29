@@ -20,7 +20,7 @@
     <!-- ******************************************************************* -->
 
     <bean id             = "lb-hazelcast-classloader"
-          class          = "lb.hazelcast.common.osgi.HazelcastBundleClassLoader"
+          class          = "lb.osgi.OSGiClassLoader"
           init-method    = "init"
           destroy-method = "destroy"
           scope          = "singleton"/>

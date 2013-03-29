@@ -14,35 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package lb.hazelcast.common.osgi;
+package lb.osgi;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 /**
  *
  */
-public class HazelcastBundleClassLoader
+public class OSGiClassLoader
     extends ClassLoader
 {
     public static final Logger LOGGER =
-        LoggerFactory.getLogger(HazelcastBundleClassLoader.class);
+        LoggerFactory.getLogger(OSGiClassLoader.class);
 
     private final ConcurrentMap<Long, Bundle> m_bundles;
     private final ConcurrentMap<String,Class<?>> m_classes;
+    private final ConcurrentMap<String,URL> m_resources;
+    private final List<ClassLoader> m_classLoaders;
 
     /**
      * c-tor
      */
-    public HazelcastBundleClassLoader() {
+    public OSGiClassLoader() {
         m_bundles = Maps.newConcurrentMap();
         m_classes = Maps.newConcurrentMap();
+        m_resources = Maps.newConcurrentMap();
+        m_classLoaders = Lists.newArrayList();
     }
 
     /**
@@ -66,7 +72,7 @@ public class HazelcastBundleClassLoader
      * @param bundle
      */
     public void addBundle(Bundle bundle) {
-        m_bundles.put(bundle.getBundleId(),bundle);
+        m_bundles.put(bundle.getBundleId(), bundle);
         m_classes.clear();
     }
 
@@ -76,6 +82,32 @@ public class HazelcastBundleClassLoader
      */
     public void removeBundle(Bundle bundle) {
         m_bundles.remove(bundle.getBundleId());
+        m_classes.clear();
+    }
+
+    /**
+     *
+     * @param classLoader
+     */
+    public void addClassLoader(ClassLoader classLoader) {
+        m_classLoaders.add(classLoader);
+    }
+
+    /**
+     *
+     * @param classLoader
+     */
+    public void removeClassLoader(ClassLoader classLoader) {
+        m_classLoaders.remove(classLoader);
+    }
+
+    /**
+     *
+     */
+    public void clear() {
+        m_resources.clear();
+        m_bundles.clear();
+        m_classLoaders.clear();
         m_classes.clear();
     }
 
@@ -94,11 +126,22 @@ public class HazelcastBundleClassLoader
                     if( bundle.getState() == Bundle.ACTIVE   ||
                         bundle.getState() == Bundle.STARTING ) {
                         clazz = bundle.loadClass(name);
-                        m_classes.putIfAbsent(name,clazz);
+                        m_classes.put(name, clazz);
 
                         return clazz;
                     }
-                } catch(ClassNotFoundException cnfe) {
+                } catch(ClassNotFoundException e) {
+                }
+            }
+
+            for(ClassLoader classLoader : m_classLoaders) {
+                try {
+                    clazz = classLoader.loadClass(name);
+                    if(clazz != null) {
+                        m_classes.putIfAbsent(name, clazz);
+                        return clazz;
+                    }
+                } catch (ClassNotFoundException e) {
                 }
             }
         } else {
@@ -110,17 +153,35 @@ public class HazelcastBundleClassLoader
 
     @Override
     public URL getResource(String name) {
-        for (Map.Entry<Long,Bundle> entry : m_bundles.entrySet()) {
-            Bundle bundle = entry.getValue();
-            if( bundle.getState() == Bundle.ACTIVE   ||
-                bundle.getState() == Bundle.STARTING ) {
-                URL url = bundle.getResource(name);
-                if(url != null) {
-                    return url;
+        URL url = m_resources.get(name);
+        if(url == null) {
+            for (Map.Entry<Long,Bundle> entry : m_bundles.entrySet()) {
+                Bundle bundle = entry.getValue();
+                if( bundle.getState() == Bundle.ACTIVE   ||
+                    bundle.getState() == Bundle.STARTING ) {
+                    url = bundle.getResource(name);
+                    if(url != null) {
+                        m_resources.put(name,url);
+                        return url;
+                    }
                 }
             }
+
+            for(ClassLoader classLoader : m_classLoaders) {
+                try {
+                    url = classLoader.getResource(name);
+                    if(url != null) {
+                        m_resources.put(name, url);
+                        return url;
+                    }
+                } catch (Exception e) {
+                }
+            }
+        } else {
+            return url;
         }
 
+        //TODO: error?
         return null;
     }
 }
