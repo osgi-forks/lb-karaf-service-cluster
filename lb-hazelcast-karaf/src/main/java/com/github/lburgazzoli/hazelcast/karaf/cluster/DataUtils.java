@@ -14,21 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli;
+package com.github.lburgazzoli.hazelcast.karaf.cluster;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  *
  */
-public class JsonUtils {
+public class DataUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataUtils.class);
     private static final ObjectMapper MAPPER = setupMapper();
 
     /**
@@ -46,21 +49,21 @@ public class JsonUtils {
     /**
      *
      * @param data
-     * @param type
-     * @param <T>
      * @return
      */
-    public static <T> T decode(String data,Class<T> type) {
-        T rval = null;
-
-        try {
-            LOGGER.debug("JsonDecode {}=<{}>",type.getName(),data);
-            rval = MAPPER.readValue(data, type);
-        } catch (IOException e) {
-            LOGGER.warn("JsonDecode - Exception",e);
+    @SuppressWarnings("unchecked")
+    public static Map<String,String> decode(String data) {
+        Map<String,String> rval = Maps.newHashMap();
+        if(StringUtils.isNotBlank(data)) {
+            try {
+                LOGGER.debug("JsonDecode {}=<{}>",Map.class.getName(),data);
+                rval = MAPPER.readValue(data,Map.class);
+            } catch (IOException e) {
+                LOGGER.warn("JsonDecode - Exception",e);
+            }
         }
 
-        return null;
+        return rval;
     }
 
     /**
@@ -68,14 +71,16 @@ public class JsonUtils {
      * @param data
      * @return
      */
-    public static String encode(Object data) {
+    public static String encode(Map<String,String> data) {
         String jsonData = null;
 
-        try {
-            jsonData = MAPPER.writeValueAsString(data);
-            LOGGER.debug("JsonDecode {}=<{}>",data.getClass().getName(),jsonData);
-        } catch (IOException e) {
-            LOGGER.warn("JsonEncode - Exception",e);
+        if(data != null) {
+            try {
+                jsonData = MAPPER.writeValueAsString(data);
+                LOGGER.debug("JsonDecode {}=<{}>",data.getClass().getName(),jsonData);
+            } catch (IOException e) {
+                LOGGER.warn("JsonEncode - Exception",e);
+            }
         }
 
         return jsonData;

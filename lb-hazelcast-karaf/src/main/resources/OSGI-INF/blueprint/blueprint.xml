@@ -8,10 +8,14 @@
 
     <cm:property-placeholder persistent-id="com.github.lburgazzoli.cluster.hz" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="hz.cache.config" value="./etc/hazelcast-cache.xml"/>
-            <cm:property name="hz.cache.name"   value="karaf-cluster"/>
-            <cm:property name="cluster.id"      value="ha1"/>
-            <cm:property name="cluster.groups"  value="G1,G2,G3"/>
+            <cm:property name="hz.cache.config"            value="./etc/hazelcast-cache.xml"/>
+            <cm:property name="hz.cache.name"              value="ha-cluster"/>
+            <cm:property name="node.id"                    value="ha"/>
+            <cm:property name="node.groups"                value=""/>
+            <cm:property name="node.leader.eligible"       value="false"/>
+            <cm:property name="node.leader.check.delay"    value="30"/>
+            <cm:property name="node.leader.check.interval" value="10"/>
+
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -60,8 +64,8 @@
           init-method    = "init"
           destroy-method = "destroy"
           scope          = "singleton">
-        <property name="clusterId"        value="${cluster.id}"/>
-        <property name="clusterGroups"    value="${cluster.groups}"/>
+        <property name="nodeId"           value="${node.id}"/>
+        <property name="nodeGroups"       value="${node.groups}"/>
         <property name="bundleContext"    ref="blueprintBundleContext"/>
         <property name="hazelcastManager" ref="lb-hazelcast-manager"/>
     </bean>

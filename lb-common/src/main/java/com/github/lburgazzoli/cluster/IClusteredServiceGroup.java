@@ -19,7 +19,7 @@ package com.github.lburgazzoli.cluster;
 /**
  *
  */
-public interface IClusteredServiceGroup extends IClusteredObject{
+public interface IClusteredServiceGroup {
 
     /**
      *
@@ -31,11 +31,11 @@ public interface IClusteredServiceGroup extends IClusteredObject{
      *
      * @return
      */
-    public String getGrpupState();
+    public String getGrpupStatus();
 
     /**
      *
      * @return
      */
-    public String getClusterId();
+    public String getNodeId();
 }

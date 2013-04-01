@@ -17,47 +17,39 @@
 package com.github.lburgazzoli.hazelcast.karaf.cluster;
 
 import com.github.lburgazzoli.cluster.IClusterNode;
+import com.hazelcast.core.IMap;
 
 /**
  *
  */
-public class ClusteredNodeInfo implements IClusterNode {
-    private String m_nodeId;
-    private String m_address;
-
-    /**
-     *
-     */
-    public ClusteredNodeInfo() {
-        this(null,null);
-    }
-
+public class ClusteredNodeProxy extends DataProxy implements IClusterNode {
     /**
      * c-tor
      *
-     * @param nodeId
-     * @param address
+     * @param cacheKey
+     * @param cacheData;
      */
-    public ClusteredNodeInfo(String nodeId, String address) {
-        m_nodeId = nodeId;
-        m_address = address;
+    public ClusteredNodeProxy(String cacheKey,IMap<String,String> cacheData) {
+        super(cacheKey,cacheData);
     }
 
-    public void setId(String id) {
-        m_nodeId = id;
-    }
-
-    @Override
-    public String getId() {
-        return m_nodeId;
-    }
-
-    public void setAddress(String address) {
-        m_address = address;
+    public ClusteredNodeProxy setNodeId(String id) {
+        setValue(Constants.K_NODE_ID,id);
+        return this;
     }
 
     @Override
-    public String getAddress() {
-        return m_address;
+    public String getNodeId() {
+        return getValue(Constants.K_NODE_ID);
+    }
+
+    public ClusteredNodeProxy setNodeAddress(String address) {
+       setValue(Constants.K_NODE_ADDRESS,address);
+       return this;
+    }
+
+    @Override
+    public String getNodeAddress() {
+        return getValue(Constants.K_NODE_ADDRESS);
     }
 }

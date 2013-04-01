@@ -18,7 +18,7 @@ public class NodeList extends AbstractTabularCommand<IClusterAgent> {
      *
      */
     public NodeList() {
-        super("IsLocal","NodeID","HostName");
+        super("IsLocal","NodeID","NodeAddress");
     }
 
     @Override
@@ -27,9 +27,9 @@ public class NodeList extends AbstractTabularCommand<IClusterAgent> {
         if(nodes != null) {
             for(IClusterNode node : nodes) {
                 table.addRow(
-                    StringUtils.equals(node.getId(),service.getId()) ? "*" : "",
-                    node.getId(),
-                    node.getAddress());
+                    StringUtils.equals(node.getNodeId(),service.getId()) ? "*" : "",
+                    node.getNodeId(),
+                    node.getNodeAddress());
             }
         }
     }

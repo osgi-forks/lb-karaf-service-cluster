@@ -16,18 +16,16 @@
  */
 package com.github.lburgazzoli.hazelcast.karaf.cluster;
 
-import com.github.lburgazzoli.JsonUtils;
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusterNode;
 import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
 import com.github.lburgazzoli.hazelcast.common.osgi.HazelcastAwareObject;
 import com.github.lburgazzoli.osgi.IOSGiLifeCycle;
 import com.github.lburgazzoli.osgi.IOSGiServiceListener;
-import com.github.lburgazzoli.osgi.OSGiUtils;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -35,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -51,24 +48,24 @@ public class ClusterAgent
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterAgent.class);
 
-    private String m_clusterId;
-    private Map<String,ClusteredServiceGroup> m_serviceGroups;
+    private String m_nodeId;
 
     private ILock m_clusterLock;
     private ScheduledExecutorService m_scheduler;
     private ScheduledFuture<?> m_schedulerHander;
     private AtomicBoolean m_leader;
+    private String[] m_groupIDs;
 
     /**
      *
      */
     public ClusterAgent() {
-        m_clusterId       = null;
-        m_clusterLock     = null;
+        m_nodeId = null;
+        m_clusterLock = null;
         m_schedulerHander = null;
-        m_serviceGroups   = Maps.newConcurrentMap();
-        m_scheduler       = Executors.newScheduledThreadPool(1);
-        m_leader          = new AtomicBoolean(false);
+        m_scheduler = Executors.newScheduledThreadPool(1);
+        m_leader = new AtomicBoolean(false);
+        m_groupIDs = ArrayUtils.EMPTY_STRING_ARRAY;
     }
 
     // *************************************************************************
@@ -79,19 +76,16 @@ public class ClusterAgent
      *
      * @param clusterId
      */
-    public void setClusterId(String clusterId) {
-        m_clusterId = clusterId;
+    public void setNodeId(String clusterId) {
+        m_nodeId = clusterId;
     }
 
     /**
      *
-     * @param clusterGroups
+     * @param nodeGroups
      */
-    public void setClusterGroups(String clusterGroups) {
-        String[] groups = StringUtils.split(clusterGroups,',');
-        for(String group : groups) {
-            m_serviceGroups.put(group,new ClusteredServiceGroup(getBundleContext(),group));
-        }
+    public void setNodeGroups(String nodeGroups) {
+        m_groupIDs = StringUtils.split(nodeGroups, ',');
     }
 
     // *************************************************************************
@@ -104,20 +98,47 @@ public class ClusterAgent
         m_clusterLock = getHazelcastManager().getLock(Constants.CLUSTER_LOCK);
         m_schedulerHander = m_scheduler.scheduleAtFixedRate(this,30,60,TimeUnit.SECONDS);
 
-        String jsonString = JsonUtils.encode(
-            new ClusteredNodeInfo(
-                m_clusterId,
-                getHazelcastManager().getLocalAddress().getHostAddress()));
+        new ClusteredNodeProxy(m_nodeId,getClusterRegistry())
+             .setNodeId(m_nodeId)
+             .setNodeAddress(getHazelcastManager().getLocalAddress().getHostAddress());
 
-        if(StringUtils.isNotBlank(jsonString)) {
-            getClusterRegistry().put(m_clusterId,jsonString);
+        for(String group : m_groupIDs) {
+            if(!getGroupRegistry().containsKey(group)) {
+                new ClusteredServiceGroupProxy(group,getGroupRegistry())
+                    .setGroupId(group)
+                    .setGroupStatus(Constants.GROUP_STATE_INACTIVE);
+            } else {
+                new ClusteredServiceGroupProxy(group,getGroupRegistry())
+                    .setGroupId(group);
+            }
         }
-
     }
 
     @Override
     public void destroy() {
         LOGGER.debug("Agent == destroy");
+
+        m_scheduler.shutdown();
+
+        try {
+            LOGGER.debug("Awaiting scheduler termination");
+            m_scheduler.awaitTermination(60,TimeUnit.SECONDS);
+            LOGGER.debug("Scheduler termination done");
+        } catch (InterruptedException e) {
+            LOGGER.warn("Exception",e);
+        }
+
+        m_schedulerHander = null;
+
+        try {
+            LOGGER.debug("Agent == remove {} from nodes", m_nodeId);
+            getClusterRegistry().lock(m_nodeId);
+            getClusterRegistry().remove(m_nodeId);
+            LOGGER.debug("Agent == {} removed", m_nodeId);
+        } finally {
+            getClusterRegistry().unlock(m_nodeId);
+        }
+
         if(m_clusterLock != null) {
             if(m_clusterLock.isLocked()) {
                 m_clusterLock.forceUnlock();
@@ -125,18 +146,6 @@ public class ClusterAgent
 
             m_clusterLock = null;
         }
-
-        m_scheduler.shutdown();
-
-        try {
-            LOGGER.debug("Awaiting termination");
-            m_scheduler.awaitTermination(60,TimeUnit.SECONDS);
-            LOGGER.debug("Termination done");
-        } catch (InterruptedException e) {
-            LOGGER.warn("Exception",e);
-        }
-
-        m_schedulerHander = null;
 
         deactivate();
     }
@@ -162,57 +171,15 @@ public class ClusterAgent
         m_leader.set(true);
 
         LOGGER.debug("==== ACTIVATE ====");
-        LOGGER.debug("Node <{}> is now the leader", m_clusterId);
-
-        /*
-        for(IClusteredServiceGroup csg : m_serviceGroups.values()) {
-            try {
-                if(!getGroupRegistry().containsKey(csg.getGroupId())) {
-                    csg.activate();
-                    getGroupRegistry().put(
-                        csg.getGroupId(),
-                        JsonUtils.encode(new ClusteredServiceGroupInfo(
-                            csg.getGroupId(),
-                            Constants.GROUP_STATE_ACTIVE,
-                            m_clusterId
-                        ))
-                    );
-                }
-            } catch(Exception e) {
-                LOGGER.warn("Activate - Exception",e);
-            }
-        }
-        */
+        LOGGER.debug("Node <{}> is now the leader", m_nodeId);
     }
 
     private void deactivate() {
         LOGGER.debug("==== DEACTIVATE ====");
-        LOGGER.debug("Node <{}> is not more the leader",m_clusterId);
-
-        /*
-        for(IClusteredServiceGroup csg : m_serviceGroups.values()) {
-            try {
-                csg.deactivate();
-                if(getGroupRegistry().containsKey(csg.getGroupId())) {
-                    csg.activate();
-                    getGroupRegistry().put(
-                        csg.getGroupId(),
-                        JsonUtils.encode(new ClusteredServiceGroupInfo(
-                            csg.getGroupId(),
-                            Constants.GROUP_STATE_INACTIVE,
-                            m_clusterId
-                        ))
-                    );
-                }
-            } catch(Exception e) {
-                LOGGER.warn("Dectivate - Exception",e);
-            }
-        }
-        */
+        LOGGER.debug("Node <{}> is not more the leader", m_nodeId);
 
         m_leader.set(false);
     }
-
 
     // *************************************************************************
     //
@@ -220,32 +187,32 @@ public class ClusterAgent
 
     @Override
     public String getId() {
-        return m_clusterId;
+        return m_nodeId;
     }
 
     @Override
     public IClusterNode getLocalNode() {
-        return getClusterNode(m_clusterId);
+        return new ClusteredNodeProxy(m_nodeId,getClusterRegistry());
     }
 
     @Override
     public Collection<IClusterNode> getNodes() {
-        Map<String,String> registry = getClusterRegistry();
-        List<IClusterNode> nodes = Lists.newArrayListWithCapacity(registry.size());
-
-        for(String key : registry.keySet()) {
-            IClusterNode node = getClusterNode(key);
-            if(node != null) {
-                nodes.add(node);
-            }
+        List<IClusterNode> nodes = Lists.newArrayList();
+        for(String key : getClusterRegistry().keySet()) {
+            nodes.add(new ClusteredNodeProxy(key,getClusterRegistry()));
         }
 
-        return nodes;
+       return nodes;
     }
 
     @Override
     public Collection<IClusteredServiceGroup> getServiceGroups() {
-        return null;
+        List<IClusteredServiceGroup> groups = Lists.newArrayList();
+        for(String key : getGroupRegistry().keySet()) {
+            groups.add(new ClusteredServiceGroupProxy(key,getGroupRegistry()));
+        }
+
+        return groups;
     }
 
     // *************************************************************************
@@ -258,17 +225,7 @@ public class ClusterAgent
      */
     @Override
     public void bind(ServiceReference reference) {
-        if(reference != null) {
-            String grp = OSGiUtils.getString(reference,Constants.SERVICE_GROUP);
-            String id  = OSGiUtils.getString(reference,Constants.SERVICE_ID);
-
-            if(StringUtils.isNotBlank(grp) && StringUtils.isNotBlank(id)) {
-                ClusteredServiceGroup services = m_serviceGroups.get(grp);
-                if(services != null) {
-                    services.bind(reference);
-                }
-            }
-        }
+        //TODO: needed?
     }
 
     /**
@@ -277,17 +234,7 @@ public class ClusterAgent
      */
     @Override
     public void unbind(ServiceReference reference) {
-        if(reference != null) {
-            String grp = OSGiUtils.getString(reference,Constants.SERVICE_GROUP);
-            String id  = OSGiUtils.getString(reference,Constants.SERVICE_ID);
-
-            if(StringUtils.isNotBlank(grp) && StringUtils.isNotBlank(id)) {
-                ClusteredServiceGroup services = m_serviceGroups.get(grp);
-                if(services != null) {
-                    services.unbind(reference);
-                }
-            }
-        }
+        //TODO: needed?
     }
 
     // *************************************************************************
@@ -300,18 +247,6 @@ public class ClusterAgent
      */
     private IMap<String,String> getClusterRegistry() {
         return getHazelcastManager().getMap(Constants.REGISTRY_NODES);
-    }
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    private IClusterNode getClusterNode(String id) {
-        String jsonData = getClusterRegistry().get(m_clusterId);
-        return StringUtils.isNotBlank(jsonData)
-            ? JsonUtils.decode(jsonData,ClusteredNodeInfo.class)
-            : null;
     }
 
     /**

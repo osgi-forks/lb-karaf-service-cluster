@@ -24,11 +24,11 @@ public interface IClusterNode {
      *
      * @return
      */
-    public String getId();
+    public String getNodeId();
 
     /**
      *
      * @return
      */
-    public String getAddress();
+    public String getNodeAddress();
 }
