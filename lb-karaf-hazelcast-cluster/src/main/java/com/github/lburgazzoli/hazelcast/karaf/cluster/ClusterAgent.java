@@ -16,6 +16,7 @@
  */
 package com.github.lburgazzoli.hazelcast.karaf.cluster;
 
+import com.github.lburgazzoli.Utils;
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusterNode;
 import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
@@ -56,8 +57,12 @@ public class ClusterAgent
     private AtomicBoolean m_leader;
     private String[] m_groupIDs;
 
+    private ClusteredNodeProxy m_nodeProxy;
+    private List<ClusteredServiceGroupProxy> m_groupProxies;
+
+
     /**
-     *
+     * c-tor
      */
     public ClusterAgent() {
         m_nodeId = null;
@@ -66,6 +71,9 @@ public class ClusterAgent
         m_scheduler = Executors.newScheduledThreadPool(1);
         m_leader = new AtomicBoolean(false);
         m_groupIDs = ArrayUtils.EMPTY_STRING_ARRAY;
+
+        m_nodeProxy = null;
+        m_groupProxies = Lists.newLinkedList();
     }
 
     // *************************************************************************
@@ -98,18 +106,21 @@ public class ClusterAgent
         m_clusterLock = getHazelcastManager().getLock(Constants.CLUSTER_LOCK);
         m_schedulerHander = m_scheduler.scheduleAtFixedRate(this,30,60,TimeUnit.SECONDS);
 
-        new ClusteredNodeProxy(m_nodeId,getClusterRegistry())
+        m_nodeProxy = new ClusteredNodeProxy(m_nodeId,getClusterRegistry())
              .setNodeId(m_nodeId)
              .setNodeAddress(getHazelcastManager().getLocalAddress().getHostAddress());
 
+        m_groupProxies.clear();
         for(String group : m_groupIDs) {
             if(!getGroupRegistry().containsKey(group)) {
-                new ClusteredServiceGroupProxy(group,getGroupRegistry())
-                    .setGroupId(group)
-                    .setGroupStatus(Constants.GROUP_STATE_INACTIVE);
+                m_groupProxies.add(
+                    new ClusteredServiceGroupProxy(group, getGroupRegistry())
+                        .setGroupId(group)
+                        .setGroupStatus(Constants.GROUP_STATE_INACTIVE));
             } else {
-                new ClusteredServiceGroupProxy(group,getGroupRegistry())
-                    .setGroupId(group);
+                m_groupProxies.add(
+                    new ClusteredServiceGroupProxy(group, getGroupRegistry())
+                        .setGroupId(group));
             }
         }
     }
@@ -192,7 +203,7 @@ public class ClusterAgent
 
     @Override
     public IClusterNode getLocalNode() {
-        return new ClusteredNodeProxy(m_nodeId,getClusterRegistry());
+        return m_nodeProxy;
     }
 
     @Override
@@ -207,12 +218,7 @@ public class ClusterAgent
 
     @Override
     public Collection<IClusteredServiceGroup> getServiceGroups() {
-        List<IClusteredServiceGroup> groups = Lists.newArrayList();
-        for(String key : getGroupRegistry().keySet()) {
-            groups.add(new ClusteredServiceGroupProxy(key,getGroupRegistry()));
-        }
-
-        return groups;
+        return Utils.downCastCollection(m_groupProxies,IClusteredServiceGroup.class);
     }
 
     // *************************************************************************
@@ -246,7 +252,7 @@ public class ClusterAgent
      * @return
      */
     private IMap<String,String> getClusterRegistry() {
-        return getHazelcastManager().getMap(Constants.REGISTRY_NODES);
+        return getHazelcastMap(Constants.REGISTRY_NODES);
     }
 
     /**
@@ -254,6 +260,6 @@ public class ClusterAgent
      * @return
      */
     private IMap<String,String> getGroupRegistry() {
-        return getHazelcastManager().getMap(Constants.REGISTRY_GROUPS);
+        return getHazelcastMap(Constants.REGISTRY_GROUPS);
     }
 }

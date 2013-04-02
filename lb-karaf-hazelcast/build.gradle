@@ -14,7 +14,7 @@ dependencies {
 }
 
 jar {
-    baseName = 'hazelcast-common'
+    baseName = 'karaf-hazelcast'
 
     manifest {
         classesDir = new File("$buildDir/classes/main")
@@ -24,8 +24,8 @@ jar {
         instruction 'Export-Package' , bundleExportPackages.join(',')
 
         attributes(
-            'Bundle-Description'     : 'LB :: Hazelcast :: Common',
-            'Bundle-Name'            : 'LB :: Hazelcast :: Common',
+            'Bundle-Description'     : 'LB :: Karaf :: Hazelcast',
+            'Bundle-Name'            : 'LB :: Karaf :: Hazelcast',
             'Bundle-SymbolicName'    : project.name,
             'Bundle-Version'         : version,
         )

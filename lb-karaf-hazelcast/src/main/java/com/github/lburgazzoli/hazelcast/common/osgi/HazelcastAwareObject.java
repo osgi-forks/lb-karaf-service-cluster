@@ -17,6 +17,7 @@
 package com.github.lburgazzoli.hazelcast.common.osgi;
 
 import com.github.lburgazzoli.osgi.BundleContextAware;
+import com.hazelcast.core.IMap;
 
 /**
  *
@@ -45,5 +46,16 @@ public class HazelcastAwareObject extends BundleContextAware {
      */
     public IHazelcastManager getHazelcastManager() {
         return m_hazelcastManager;
+    }
+
+    /**
+     *
+     * @param key
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    protected <K,V> IMap<K,V> getHazelcastMap(String key) {
+        return m_hazelcastManager.getMap(key);
     }
 }

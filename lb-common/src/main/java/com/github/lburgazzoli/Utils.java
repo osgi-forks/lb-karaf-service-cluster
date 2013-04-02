@@ -16,6 +16,8 @@
  */
 package com.github.lburgazzoli;
 
+import java.util.Collection;
+
 /**
  *
  */
@@ -32,4 +34,18 @@ public class Utils {
 
         return thread;
     }
+
+    /**
+     *
+     * @param collection
+     * @param type
+     * @param <T>
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Collection<T> downCastCollection(
+        Collection<? extends T> collection,Class<T> type) {
+        return (Collection<T>) collection;
+    }
+
 }
