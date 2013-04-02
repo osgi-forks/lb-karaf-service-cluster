@@ -14,42 +14,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.hazelcast.karaf.cluster;
+package com.github.lburgazzoli.karaf.hazelcast;
 
-import com.github.lburgazzoli.cluster.IClusterNode;
+import com.github.lburgazzoli.osgi.BundleContextAware;
 import com.hazelcast.core.IMap;
 
 /**
  *
  */
-public class ClusteredNodeProxy extends DataProxy implements IClusterNode {
+public class HazelcastAwareObject extends BundleContextAware {
+    private IHazelcastManager m_hazelcastManager;
+
     /**
-     * c-tor
      *
-     * @param cacheKey
-     * @param cacheData;
      */
-    public ClusteredNodeProxy(String cacheKey,IMap<String,String> cacheData) {
-        super(cacheKey,cacheData);
+    public HazelcastAwareObject() {
+        m_hazelcastManager = null;
     }
 
-    public ClusteredNodeProxy setNodeId(String id) {
-        setValue(Constants.K_NODE_ID,id);
-        return this;
+    /**
+     *
+     * @param hazelcastManager
+     */
+    public void setHazelcastManager(IHazelcastManager hazelcastManager) {
+        m_hazelcastManager = hazelcastManager;
     }
 
-    @Override
-    public String getNodeId() {
-        return getValue(Constants.K_NODE_ID);
+    /**
+     *
+     * @return
+     */
+    public IHazelcastManager getHazelcastManager() {
+        return m_hazelcastManager;
     }
 
-    public ClusteredNodeProxy setNodeAddress(String address) {
-       setValue(Constants.K_NODE_ADDRESS,address);
-       return this;
-    }
-
-    @Override
-    public String getNodeAddress() {
-        return getValue(Constants.K_NODE_ADDRESS);
+    /**
+     *
+     * @param key
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    protected <K,V> IMap<K,V> getHazelcastMap(String key) {
+        return m_hazelcastManager.getMap(key);
     }
 }

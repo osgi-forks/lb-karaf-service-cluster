@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.hazelcast.karaf.cluster;
+package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
 import com.github.lburgazzoli.Utils;
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusterNode;
 import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
-import com.github.lburgazzoli.hazelcast.common.osgi.HazelcastAwareObject;
+import com.github.lburgazzoli.karaf.hazelcast.HazelcastAwareObject;
 import com.github.lburgazzoli.osgi.IOSGiLifeCycle;
 import com.github.lburgazzoli.osgi.IOSGiServiceListener;
 import com.google.common.collect.Lists;

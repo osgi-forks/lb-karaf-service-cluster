@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.hazelcast.common.osgi;
+package com.github.lburgazzoli.karaf.hazelcast;
 
 import com.github.lburgazzoli.osgi.BundleContextAware;
 import com.github.lburgazzoli.osgi.OSGiClassLoader;

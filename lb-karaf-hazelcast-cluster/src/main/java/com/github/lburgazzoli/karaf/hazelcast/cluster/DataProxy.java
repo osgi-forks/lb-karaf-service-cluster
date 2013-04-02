@@ -1,11 +1,8 @@
-package com.github.lburgazzoli.hazelcast.karaf.cluster;
+package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
-import com.google.common.collect.Maps;
-import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**

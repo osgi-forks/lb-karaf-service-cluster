@@ -8,14 +8,11 @@
 
     <cm:property-placeholder persistent-id="com.github.lburgazzoli.cluster.hz" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="hz.cache.config"            value="./etc/hazelcast-cache.xml"/>
-            <cm:property name="hz.cache.name"              value="ha-cluster"/>
             <cm:property name="node.id"                    value="ha"/>
             <cm:property name="node.groups"                value=""/>
             <cm:property name="node.leader.eligible"       value="false"/>
             <cm:property name="node.leader.check.delay"    value="30"/>
             <cm:property name="node.leader.check.interval" value="10"/>
-
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -23,51 +20,24 @@
     <!--                                                                     -->
     <!-- ******************************************************************* -->
 
-    <bean id             = "lb-hazelcast-classloader"
-          class          = "com.github.lburgazzoli.osgi.OSGiClassLoader"
-          init-method    = "init"
-          destroy-method = "destroy"
-          scope          = "singleton"/>
-
-    <bean id    = "lb-hazelcast-cfg"
-          class = "com.hazelcast.config.FileSystemXmlConfig"
-          scope = "singleton">
-        <argument value = "${hz.cache.config}"/>
-    </bean>
-
-    <bean id             = "lb-hazelcast-manager"
-          class          = "com.github.lburgazzoli.hazelcast.common.osgi.HazelcastManager"
-          init-method    = "init"
-          destroy-method = "destroy"
-          scope          = "singleton">
-        <argument ref = "blueprintBundleContext"/>
-        <argument ref = "lb-hazelcast-cfg"/>
-        <argument ref = "lb-hazelcast-classloader"/>
-    </bean>
-
-    <service ref="lb-hazelcast-manager">
-        <interfaces>
-            <value>com.github.lburgazzoli.hazelcast.common.osgi.IHazelcastManager</value>
-        </interfaces>
-        <service-properties>
-            <entry key   = "osgi.jndi.service.name"
-                   value = "lb-hazelcast-manager"/>
-        </service-properties>
-    </service>
+    <reference
+        id        = "karaf-hazelcast-manager"
+        interface = "com.github.lburgazzoli.karaf.hazelcast.IHazelcastManager"
+        filter    = "(osgi.jndi.service.name=karaf-hazelcast-manager)"/>
 
     <!-- ******************************************************************* -->
     <!--                                                                     -->
     <!-- ******************************************************************* -->
 
-    <bean id             = "lb-cluster-agent"
-          class          = "com.github.lburgazzoli.hazelcast.karaf.cluster.ClusterAgent"
+    <bean id             = "karaf-cluster-agent"
+          class          = "com.github.lburgazzoli.karaf.hazelcast.cluster.ClusterAgent"
           init-method    = "init"
           destroy-method = "destroy"
           scope          = "singleton">
         <property name="nodeId"           value="${node.id}"/>
         <property name="nodeGroups"       value="${node.groups}"/>
         <property name="bundleContext"    ref="blueprintBundleContext"/>
-        <property name="hazelcastManager" ref="lb-hazelcast-manager"/>
+        <property name="hazelcastManager" ref="karaf-hazelcast-manager"/>
     </bean>
 
     <reference-list
@@ -75,18 +45,18 @@
         interface="com.github.lburgazzoli.cluster.IClusteredService"
         availability="optional">
         <reference-listener
-            ref="lb-cluster-agent"
+            ref="karaf-cluster-agent"
             bind-method="bind"
             unbind-method="unbind"/>
     </reference-list>
 
-    <service ref="lb-cluster-agent">
+    <service ref="karaf-cluster-agent">
         <interfaces>
             <value>com.github.lburgazzoli.cluster.IClusterAgent</value>
         </interfaces>
         <service-properties>
             <entry key   = "osgi.jndi.service.name"
-                   value = "lb-cluster-agent"/>
+                   value = "karaf-cluster-agent"/>
         </service-properties>
     </service>
 
@@ -96,13 +66,13 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="cluster/node-list">
-            <action class="com.github.lburgazzoli.hazelcast.karaf.cluster.cmd.NodeList">
-                <property name="service" ref="lb-cluster-agent"/>
+            <action class="com.github.lburgazzoli.karaf.hazelcast.cluster.cmd.NodeList">
+                <property name="service" ref="karaf-cluster-agent"/>
             </action>
         </command>
         <command name="cluster/group-list">
-            <action class="com.github.lburgazzoli.hazelcast.karaf.cluster.cmd.GroupList">
-                <property name="service" ref="lb-cluster-agent"/>
+            <action class="com.github.lburgazzoli.karaf.hazelcast.cluster.cmd.GroupList">
+                <property name="service" ref="karaf-cluster-agent"/>
             </action>
         </command>
     </command-bundle>

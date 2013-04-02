@@ -7,9 +7,47 @@
     <!--                                                                     -->
     <!-- ******************************************************************* -->
 
-    <cm:property-placeholder persistent-id="lb.hazelcast.common" update-strategy="reload">
+    <cm:property-placeholder persistent-id="com.github.lburgazzoli.cluster.hz" update-strategy="reload">
         <cm:default-properties>
+            <cm:property name = "hz.cache.config"
+                         value = "./etc/hazelcast-cache.xml"/>
         </cm:default-properties>
     </cm:property-placeholder>
+
+    <!-- ******************************************************************* -->
+    <!--                                                                     -->
+    <!-- ******************************************************************* -->
+
+    <bean id             = "karaf-hazelcast-classloader"
+          class          = "com.github.lburgazzoli.osgi.OSGiClassLoader"
+          init-method    = "init"
+          destroy-method = "destroy"
+          scope          = "singleton"/>
+
+    <bean id    = "karaf-hazelcast-cfg"
+          class = "com.hazelcast.config.FileSystemXmlConfig"
+          scope = "singleton">
+        <argument value = "${hz.cache.config}"/>
+    </bean>
+
+    <bean id             = "karaf-hazelcast-manager"
+          class          = "com.github.lburgazzoli.karaf.hazelcast.HazelcastManager"
+          init-method    = "init"
+          destroy-method = "destroy"
+          scope          = "singleton">
+        <argument ref = "blueprintBundleContext"/>
+        <argument ref = "karaf-hazelcast-cfg"/>
+        <argument ref = "karaf-hazelcast-classloader"/>
+    </bean>
+
+    <service ref="karaf-hazelcast-manager">
+        <interfaces>
+            <value>com.github.lburgazzoli.karaf.hazelcast.IHazelcastManager</value>
+        </interfaces>
+        <service-properties>
+            <entry key   = "osgi.jndi.service.name"
+                   value = "karaf-hazelcast-manager"/>
+        </service-properties>
+    </service>
 
 </blueprint>

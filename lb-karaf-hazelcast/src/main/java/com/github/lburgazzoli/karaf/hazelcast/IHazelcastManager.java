@@ -14,48 +14,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.hazelcast.common.osgi;
+package com.github.lburgazzoli.karaf.hazelcast;
 
-import com.github.lburgazzoli.osgi.BundleContextAware;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IList;
+import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+
+import java.net.InetAddress;
 
 /**
  *
  */
-public class HazelcastAwareObject extends BundleContextAware {
-    private IHazelcastManager m_hazelcastManager;
-
+public interface IHazelcastManager  {
     /**
      *
+     * @return
      */
-    public HazelcastAwareObject() {
-        m_hazelcastManager = null;
-    }
-
-    /**
-     *
-     * @param hazelcastManager
-     */
-    public void setHazelcastManager(IHazelcastManager hazelcastManager) {
-        m_hazelcastManager = hazelcastManager;
-    }
+    public HazelcastInstance getInstance();
 
     /**
      *
      * @return
      */
-    public IHazelcastManager getHazelcastManager() {
-        return m_hazelcastManager;
-    }
+    public InetAddress getLocalAddress();
 
     /**
      *
-     * @param key
+     * @param mapName
      * @param <K>
      * @param <V>
      * @return
      */
-    protected <K,V> IMap<K,V> getHazelcastMap(String key) {
-        return m_hazelcastManager.getMap(key);
-    }
+    public <K,V> IMap<K,V> getMap(String mapName);
+
+    /**
+     *
+     * @param listName
+     * @param <T>
+     * @return
+     */
+    public <T> IList<T> getList(String listName);
+
+    /**
+     *
+     * @param lockName
+     * @return
+     */
+    public ILock getLock(String lockName);
+
+    /**
+     *
+     * @param topicName
+     * @param <E>
+     * @return
+     */
+    public <E> ITopic<E> getTopic(String topicName);
 }

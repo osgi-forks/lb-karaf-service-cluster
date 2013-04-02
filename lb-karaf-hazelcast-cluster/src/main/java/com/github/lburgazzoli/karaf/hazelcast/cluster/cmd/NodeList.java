@@ -1,4 +1,4 @@
-package com.github.lburgazzoli.hazelcast.karaf.cluster.cmd;
+package com.github.lburgazzoli.karaf.hazelcast.cluster.cmd;
 
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusterNode;
