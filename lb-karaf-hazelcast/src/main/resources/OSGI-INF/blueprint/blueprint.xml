@@ -7,10 +7,10 @@
     <!--                                                                     -->
     <!-- ******************************************************************* -->
 
-    <cm:property-placeholder persistent-id="com.github.lburgazzoli.cluster.hz" update-strategy="reload">
+    <cm:property-placeholder persistent-id="com.github.lburgazzoli.karaf.hazelcast" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name = "hz.cache.config"
-                         value = "./etc/hazelcast-cache.xml"/>
+            <cm:property name = "hz.config"
+                         value = "./etc/com.github.lburgazzoli.karaf.hazelcast.xml"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -27,7 +27,7 @@
     <bean id    = "karaf-hazelcast-cfg"
           class = "com.hazelcast.config.FileSystemXmlConfig"
           scope = "singleton">
-        <argument value = "${hz.cache.config}"/>
+        <argument value = "${hz.config}"/>
     </bean>
 
     <bean id             = "karaf-hazelcast-manager"
@@ -49,5 +49,22 @@
                    value = "karaf-hazelcast-manager"/>
         </service-properties>
     </service>
+
+    <!-- ******************************************************************* -->
+    <!-- COMMANDS                                                            -->
+    <!-- ******************************************************************* -->
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="hz/member-list">
+            <action class="com.github.lburgazzoli.karaf.hazelcast.cmd.MemberList">
+                <property name="service" ref="karaf-hazelcast-manager"/>
+            </action>
+        </command>
+        <command name="hz/instance-list">
+            <action class="com.github.lburgazzoli.karaf.hazelcast.cmd.InstanceList">
+                <property name="service" ref="karaf-hazelcast-manager"/>
+            </action>
+        </command>
+    </command-bundle>
 
 </blueprint>

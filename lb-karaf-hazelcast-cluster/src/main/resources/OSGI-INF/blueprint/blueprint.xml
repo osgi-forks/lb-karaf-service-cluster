@@ -6,7 +6,7 @@
     <!--                                                                     -->
     <!-- ******************************************************************* -->
 
-    <cm:property-placeholder persistent-id="com.github.lburgazzoli.cluster.hz" update-strategy="reload">
+    <cm:property-placeholder persistent-id="com.github.lburgazzoli.karaf.hazelcast.cluster" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="node.id"                    value="ha"/>
             <cm:property name="node.groups"                value=""/>
