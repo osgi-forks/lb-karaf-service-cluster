@@ -25,6 +25,18 @@ public interface IClusteredServiceGroup {
      *
      * @return
      */
+    public IClusteredNode getParent();
+
+    /**
+     *
+     * @return
+     */
+    public String getNodeId();
+
+    /**
+     *
+     * @return
+     */
     public String getGroupId();
 
     /**
@@ -32,10 +44,4 @@ public interface IClusteredServiceGroup {
      * @return
      */
     public String getGrpupStatus();
-
-    /**
-     *
-     * @return
-     */
-    public String getNodeId();
 }

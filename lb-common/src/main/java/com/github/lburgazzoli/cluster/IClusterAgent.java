@@ -32,13 +32,13 @@ public interface IClusterAgent {
      *
      * @return
      */
-    public IClusterNode getLocalNode();
+    public IClusteredNode getLocalNode();
 
     /**
      *
      * @return
      */
-    public Collection<IClusterNode> getNodes();
+    public Collection<IClusteredNode> getNodes();
 
     /**
      *

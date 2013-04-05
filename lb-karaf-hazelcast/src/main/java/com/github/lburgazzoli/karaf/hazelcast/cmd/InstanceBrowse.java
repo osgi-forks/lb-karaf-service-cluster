@@ -19,8 +19,11 @@ package com.github.lburgazzoli.karaf.hazelcast.cmd;
 import com.github.lburgazzoli.karaf.hazelcast.IHazelcastManager;
 import com.github.lburgazzoli.osgi.karaf.cmd.AbstractTabularCommand;
 import com.github.lburgazzoli.osgi.karaf.cmd.ShellTable;
-import com.hazelcast.core.Cluster;
-import com.hazelcast.core.Member;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.Instance;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 
 import java.util.Collection;
@@ -29,33 +32,38 @@ import java.util.Collection;
 /**
  *
  */
-@Command(scope = "hz", name = "member-list", description = "List Hazelcast Members")
-public class MemberList extends AbstractTabularCommand<IHazelcastManager> {
+@Command(scope = "hz", name = "instance-browse", description = "Browse Instance")
+public class InstanceBrowse extends AbstractTabularCommand<IHazelcastManager> {
+    @Argument(
+        index       = 0,
+        name        = "name",
+        description = "The Instance name",
+        required    = true,
+        multiValued = false)
+    String instanceName = null;
+
     /**
-     * c-tor
+     *
      */
-    public MemberList() {
-        super("MemberID","MemberAddress","IsLocal","IsLite");
+    public InstanceBrowse() {
+        super("Key","Value");
+        super.setMxColSize(256);
+
     }
 
     @Override
     protected void doExecute(IHazelcastManager service, ShellTable table) throws Exception {
-        Cluster cluster = service.getInstance().getCluster();
-        Collection<Member> members = cluster.getMembers();
-
-        if(members != null) {
-            for(Member member : members) {
-                table.addRow(
-                    member.getUuid(),
-                    String.format("%s:%d",
-                        member.getInetSocketAddress().getHostString(),
-                        member.getInetSocketAddress().getPort()),
-                    member.localMember()
-                        ? "Y"
-                        : "N",
-                    member.isLiteMember()
-                        ? "Y"
-                        : "N");
+        Collection<Instance> instances = service.getInstance().getInstances();
+        for(Instance instance : instances) {
+            if(instance.getInstanceType().isMap()) {
+                IMap<?,?> data = (IMap<?, ?>)instance;
+                if(StringUtils.equals(data.getName(),instanceName)) {
+                    for(Object key : data.keySet()) {
+                        table.addRow(
+                            ObjectUtils.toString(key),
+                            ObjectUtils.toString(data.get(key)));
+                    }
+                }
             }
         }
     }

@@ -32,6 +32,22 @@ public abstract class AbstractTabularCommand<T> extends AbstractServiceCommand<T
 
     /**
      *
+     * @param size
+     */
+    protected void setMxColSize(int size) {
+        m_table.setMxColSize(size);
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected ShellTable getTable() {
+        return m_table;
+    }
+
+    /**
+     *
      * @param service
      * @throws Exception
      */
@@ -46,4 +62,5 @@ public abstract class AbstractTabularCommand<T> extends AbstractServiceCommand<T
      * @throws Exception
      */
     protected abstract void doExecute(T service,ShellTable table) throws Exception;
+
 }

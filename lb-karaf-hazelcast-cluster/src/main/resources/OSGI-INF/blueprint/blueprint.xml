@@ -29,6 +29,13 @@
     <!--                                                                     -->
     <!-- ******************************************************************* -->
 
+    <bean id             = "karaf-cluster-context"
+          class          = "com.github.lburgazzoli.karaf.hazelcast.cluster.ClusterContext"
+          scope          = "singleton">
+        <property name="bundleContext"    ref="blueprintBundleContext"/>
+        <property name="hazelcastManager" ref="karaf-hazelcast-manager"/>
+    </bean>
+
     <bean id             = "karaf-cluster-agent"
           class          = "com.github.lburgazzoli.karaf.hazelcast.cluster.ClusterAgent"
           init-method    = "init"
@@ -36,8 +43,7 @@
           scope          = "singleton">
         <property name="nodeId"           value="${node.id}"/>
         <property name="nodeGroups"       value="${node.groups}"/>
-        <property name="bundleContext"    ref="blueprintBundleContext"/>
-        <property name="hazelcastManager" ref="karaf-hazelcast-manager"/>
+        <property name="clusterContext"   ref="karaf-cluster-context"/>
     </bean>
 
     <reference-list

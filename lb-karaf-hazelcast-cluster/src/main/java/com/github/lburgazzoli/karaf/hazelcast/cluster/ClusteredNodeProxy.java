@@ -16,13 +16,15 @@
  */
 package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
-import com.github.lburgazzoli.cluster.IClusterNode;
+import com.github.lburgazzoli.cluster.IClusteredNode;
 import com.hazelcast.core.IMap;
+
+import java.net.InetAddress;
 
 /**
  *
  */
-public class ClusteredNodeProxy extends DataProxy implements IClusterNode {
+public class ClusteredNodeProxy extends DataProxy implements IClusteredNode {
     /**
      * c-tor
      *
@@ -30,17 +32,21 @@ public class ClusteredNodeProxy extends DataProxy implements IClusterNode {
      * @param cacheData;
      */
     public ClusteredNodeProxy(String cacheKey,IMap<String,String> cacheData) {
-        super(cacheKey,cacheData);
+        super(cacheKey, cacheData);
     }
 
     public ClusteredNodeProxy setNodeId(String id) {
-        setValue(Constants.K_NODE_ID,id);
+        setValue(Constants.K_NODE_ID, id);
         return this;
     }
 
     @Override
     public String getNodeId() {
         return getValue(Constants.K_NODE_ID);
+    }
+
+    public ClusteredNodeProxy setNodeAddress(InetAddress address) {
+        return setNodeAddress(address.getHostAddress());
     }
 
     public ClusteredNodeProxy setNodeAddress(String address) {

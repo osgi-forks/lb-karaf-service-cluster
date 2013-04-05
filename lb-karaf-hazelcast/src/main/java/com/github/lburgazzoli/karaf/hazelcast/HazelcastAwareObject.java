@@ -55,7 +55,7 @@ public class HazelcastAwareObject extends BundleContextAware {
      * @param <V>
      * @return
      */
-    protected <K,V> IMap<K,V> getHazelcastMap(String key) {
+    public <K,V> IMap<K,V> getHazelcastMap(String key) {
         return m_hazelcastManager.getMap(key);
     }
 }

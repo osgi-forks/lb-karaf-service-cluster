@@ -16,41 +16,41 @@
  */
 package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
-import com.github.lburgazzoli.cluster.IClusteredNode;
+import com.github.lburgazzoli.cluster.IClusteredService;
 import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
 import com.hazelcast.core.IMap;
 
 /**
  *
  */
-public class ClusteredServiceGroupProxy extends DataProxy implements IClusteredServiceGroup {
+public class ClusteredServiceProxy extends DataProxy implements IClusteredService {
 
     /**
      * c-tor
      *
      * @param cacheKey
-     * @param cacheData;
+     * @param cacheData
      */
-    public ClusteredServiceGroupProxy(String cacheKey, IMap<String, String> cacheData) {
+    public ClusteredServiceProxy(String cacheKey, IMap<String, String> cacheData) {
         super(cacheKey,cacheData);
     }
 
     @Override
-    public IClusteredNode getParent() {
+    public IClusteredServiceGroup getParent() {
         return null;
     }
 
-    public ClusteredServiceGroupProxy setNodeId(String clusterId) {
-        setValue(Constants.K_NODE_ID,clusterId);
+    public ClusteredServiceProxy setNodeId(String id) {
+        setValue(Constants.K_NODE_ID, id);
         return this;
     }
 
     @Override
     public String getNodeId() {
         return getValue(Constants.K_NODE_ID);
-    }
+}
 
-    public ClusteredServiceGroupProxy setGroupId(String id) {
+    public ClusteredServiceProxy setGroupId(String id) {
         setValue(Constants.K_GROUP_ID,id);
         return this;
     }
@@ -60,13 +60,23 @@ public class ClusteredServiceGroupProxy extends DataProxy implements IClusteredS
         return getValue(Constants.K_GROUP_ID);
     }
 
-    public ClusteredServiceGroupProxy setGroupStatus(String status) {
-        setValue(Constants.K_GROUP_STATUS,status);
+    public ClusteredServiceProxy setServiceId(String id) {
+        setValue(Constants.K_SERVICE_ID,id);
         return this;
     }
 
     @Override
-    public String getGrpupStatus() {
-        return getValue(Constants.K_GROUP_STATUS);
+    public String getServiceId() {
+        return getValue(Constants.K_SERVICE_ID);
+    }
+
+    public ClusteredServiceProxy setServiceStatus(String status) {
+        setValue(Constants.K_SERVICE_STATUS,status);
+        return this;
+    }
+
+    @Override
+    public String getServiceStatus() {
+        return getValue(Constants.K_SERVICE_STATUS);
     }
 }

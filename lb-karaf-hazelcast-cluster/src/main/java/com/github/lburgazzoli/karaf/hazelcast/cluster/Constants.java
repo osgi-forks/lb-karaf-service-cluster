@@ -20,6 +20,7 @@ package com.github.lburgazzoli.karaf.hazelcast.cluster;
  *
  */
 public class Constants {
+    public static final String REGISTRY_LOCKS  = "lb.karaf.cluster.registry.locks";
     public static final String REGISTRY_NODES  = "lb.karaf.cluster.registry.nodes";
     public static final String REGISTRY_GROUPS = "lb.karaf.cluster.registry.groups";
     public static final String SERVICE_ID      = "lb.karaf.cluster.service.id";
@@ -27,13 +28,18 @@ public class Constants {
     public static final String SERVICE_RANK    = "lb.karaf.cluster.service.rank";
     public static final String CLUSTER_LOCK    = "lb.karaf.cluster.lock";
 
-    public static final String GROUP_STATE_ACTIVE   = "ACTIVE";
-    public static final String GROUP_STATE_INACTIVE = "INACTIVE";
+    public static final String GROUP_STATE_ACTIVE     = "ACTIVE";
+    public static final String GROUP_STATE_INACTIVE   = "INACTIVE";
+
+    public static final String SERVICE_STATE_ACTIVE   = "ACTIVE";
+    public static final String SERVICE_STATE_INACTIVE = "INACTIVE";
 
 
-    public static final String K_NODE_ID       = "node_id";
-    public static final String K_NODE_ADDRESS  = "node_address";
-    public static final String K_GROUP_ID      = "group_id";
-    public static final String K_GROUP_STATUS  = "group_status";
+    public static final String K_NODE_ID         = "node_id";
+    public static final String K_NODE_ADDRESS    = "node_address";
+    public static final String K_GROUP_ID        = "group_id";
+    public static final String K_GROUP_STATUS    = "group_status";
+    public static final String K_SERVICE_ID      = "service_id";
+    public static final String K_SERVICE_STATUS  = "service_status";
 }
 

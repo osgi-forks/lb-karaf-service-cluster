@@ -19,5 +19,35 @@ package com.github.lburgazzoli.cluster;
 /**
  *
  */
-public interface IClusteredService extends IClusteredObject{
+public interface IClusteredService {
+
+    /**
+     *
+     * @return
+     */
+    public IClusteredServiceGroup getParent();
+
+    /**
+     *
+     * @return
+     */
+    public String getNodeId();
+
+    /**
+     *
+     * @return
+     */
+    public String getGroupId();
+
+    /**
+     *
+     * @return
+     */
+    public String getServiceId();
+
+    /**
+     *
+     * @return
+     */
+    public String getServiceStatus();
 }

@@ -19,7 +19,7 @@ package com.github.lburgazzoli.cluster;
 /**
  *
  */
-public interface IClusterNode {
+public interface IClusteredNode {
     /**
      *
      * @return
