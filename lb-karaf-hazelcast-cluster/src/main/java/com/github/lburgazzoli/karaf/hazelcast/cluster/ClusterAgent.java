@@ -42,8 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  *
  */
-public class ClusterAgent
-    implements IClusterAgent, IOSGiServiceListener, IOSGiLifeCycle, Runnable {
+public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiLifeCycle, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterAgent.class);
 
