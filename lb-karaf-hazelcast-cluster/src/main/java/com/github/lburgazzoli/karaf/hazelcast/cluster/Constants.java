@@ -34,7 +34,7 @@ public class Constants {
     public static final String SERVICE_STATE_ACTIVE   = "ACTIVE";
     public static final String SERVICE_STATE_INACTIVE = "INACTIVE";
 
-
+    public static final String K_HOWNER          = "howner";
     public static final String K_NODE_ID         = "node_id";
     public static final String K_NODE_ADDRESS    = "node_address";
     public static final String K_GROUP_ID        = "group_id";

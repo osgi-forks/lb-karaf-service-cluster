@@ -90,6 +90,11 @@ public class DataProxy {
         return DataUtils.decode(m_cacheData.get(m_cacheKey));
     }
 
+    /**
+     *
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

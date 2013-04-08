@@ -25,12 +25,6 @@ public interface IClusteredService {
      *
      * @return
      */
-    public IClusteredServiceGroup getParent();
-
-    /**
-     *
-     * @return
-     */
     public String getNodeId();
 
     /**

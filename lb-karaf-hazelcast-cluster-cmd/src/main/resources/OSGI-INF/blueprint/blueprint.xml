@@ -1,0 +1,54 @@
+<blueprint
+        xmlns    = "http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xmlns:cm = "http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <!-- ******************************************************************* -->
+    <!--                                                                     -->
+    <!-- ******************************************************************* -->
+
+    <cm:property-placeholder persistent-id="com.github.lburgazzoli.karaf.hazelcast.cluster.cmd" update-strategy="reload">
+        <cm:default-properties>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
+    <!-- ******************************************************************* -->
+    <!--                                                                     -->
+    <!-- ******************************************************************* -->
+
+    <reference
+        id        = "karaf-cluster-agent"
+        interface = "com.github.lburgazzoli.cluster.IClusterAgent"
+        filter    = "(osgi.jndi.service.name=karaf-cluster-agent)"/>
+
+    <!-- ******************************************************************* -->
+    <!-- COMMANDS                                                            -->
+    <!-- ******************************************************************* -->
+
+    <bean id    = "cmd-completer-group"
+          class = "com.github.lburgazzoli.karaf.cluster.cmd.GroupCompleter">
+        <property name="service" ref="karaf-cluster-agent"/>
+    </bean>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="cluster/node-list">
+            <action class="com.github.lburgazzoli.karaf.cluster.cmd.NodeList">
+                <property name="service" ref="karaf-cluster-agent"/>
+            </action>
+        </command>
+        <command name="cluster/group-list">
+            <action class="com.github.lburgazzoli.karaf.cluster.cmd.GroupList">
+                <property name="service" ref="karaf-cluster-agent"/>
+            </action>
+        </command>
+        <command name="cluster/service-list">
+            <action class="com.github.lburgazzoli.karaf.cluster.cmd.ServiceList">
+                <property name="service" ref="karaf-cluster-agent"/>
+            </action>
+            <completers>
+                <ref component-id="cmd-completer-group"/>
+                <null/>
+            </completers>
+        </command>
+    </command-bundle>
+
+</blueprint>

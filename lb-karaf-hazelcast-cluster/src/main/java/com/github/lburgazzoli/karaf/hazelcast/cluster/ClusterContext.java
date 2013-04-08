@@ -35,10 +35,13 @@ public class ClusterContext extends HazelcastAwareObject {
     private final Map<String,ClusteredServiceGroupProxy> m_groups;
     private final Map<String,ClusteredServiceProxy> m_services;
 
+    private String m_nodeId;
+
     /**
      *
      */
     public ClusterContext() {
+        m_nodeId   = null;
         m_nodes    = Maps.newConcurrentMap();
         m_groups   = Maps.newConcurrentMap();
         m_services = Maps.newConcurrentMap();
@@ -50,69 +53,107 @@ public class ClusterContext extends HazelcastAwareObject {
 
     /**
      *
-     * @param id
+     * @param nodeId
+     */
+    public void setNodeId(String nodeId){
+        m_nodeId = nodeId;
+    }
+
+    /**
+     *
      * @return
      */
-    public ClusteredNodeProxy getNode(String id) {
-        if(!m_nodes.containsKey(id)) {
-            if(!getClusterRegistry().containsKey(id)) {
+    public String getNodeId(){
+        return m_nodeId;
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    /**
+     *
+     * @return
+     */
+    public ClusteredNodeProxy getNode() {
+        return getNode(m_nodeId);
+    }
+
+    /**
+     *
+     * @param nodeId
+     * @return
+     */
+    public ClusteredNodeProxy getNode(String nodeId) {
+        if(!m_nodes.containsKey(nodeId)) {
+            if(!getClusterRegistry().containsKey(nodeId)) {
                 m_nodes.put(
-                    id,
-                    new ClusteredNodeProxy(id,getClusterRegistry())
-                        .setNodeId(id)
+                    nodeId,
+                    new ClusteredNodeProxy(nodeId,getClusterRegistry())
+                        .setNodeId(nodeId)
                         .setNodeAddress(getHazelcastManager().getLocalAddress()));
             } else {
                 m_nodes.put(
-                    id,
-                    new ClusteredNodeProxy(id,getClusterRegistry()));
+                    nodeId,
+                    new ClusteredNodeProxy(nodeId,getClusterRegistry()));
             }
         }
 
-        return m_nodes.get(id);
+        return m_nodes.get(nodeId);
     }
 
     /**
      *
-     * @param id
+     * @param nodeId
+     * @param groupId
+     *
      * @return
      */
-    public ClusteredServiceGroupProxy getServiceGroup(String id) {
-        if(!m_groups.containsKey(id)) {
-            if(!getClusterRegistry().containsKey(id)) {
+    public ClusteredServiceGroupProxy getServiceGroup(String nodeId,String groupId) {
+        if(!m_groups.containsKey(groupId)) {
+            if(!getClusterRegistry().containsKey(groupId)) {
                 m_groups.put(
-                    id,
-                    new ClusteredServiceGroupProxy(id, getClusterRegistry())
+                    groupId,
+                    new ClusteredServiceGroupProxy(groupId, getClusterRegistry())
+                        .setNodeId(nodeId)
+                        .setGroupId(groupId)
                         .setGroupStatus(Constants.GROUP_STATE_INACTIVE));
             } else {
                 m_groups.put(
-                    id,
-                    new ClusteredServiceGroupProxy(id,getClusterRegistry()));
+                    groupId,
+                    new ClusteredServiceGroupProxy(groupId,getClusterRegistry()));
             }
         }
 
-        return m_groups.get(id);
+        return m_groups.get(groupId);
     }
 
     /**
      *
-     * @param id
+     * @param nodeId
+     * @param groupId
+     * @param serviceId
+     *
      * @return
      */
-    public ClusteredServiceProxy getService(String id) {
-        if(!m_services.containsKey(id)) {
-            if(!getClusterRegistry().containsKey(id)) {
+    public ClusteredServiceProxy getService(String nodeId,String groupId,String serviceId) {
+        if(!m_services.containsKey(serviceId)) {
+            if(!getClusterRegistry().containsKey(serviceId)) {
                 m_services.put(
-                    id,
-                    new ClusteredServiceProxy(id,getClusterRegistry())
+                    serviceId,
+                    new ClusteredServiceProxy(serviceId,getClusterRegistry())
+                        .setNodeId(nodeId)
+                        .setGroupId(groupId)
+                        .setServiceId(serviceId)
                         .setServiceStatus(Constants.SERVICE_STATE_INACTIVE));
             } else {
                 m_services.put(
-                    id,
-                    new ClusteredServiceProxy(id,getClusterRegistry()));
+                    serviceId,
+                    new ClusteredServiceProxy(serviceId,getClusterRegistry()));
             }
         }
 
-        return m_services.get(id);
+        return m_services.get(serviceId);
     }
 
     // *************************************************************************

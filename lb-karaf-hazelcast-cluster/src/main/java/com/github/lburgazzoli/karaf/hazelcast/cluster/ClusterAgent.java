@@ -19,6 +19,7 @@ package com.github.lburgazzoli.karaf.hazelcast.cluster;
 import com.github.lburgazzoli.Utils;
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusteredNode;
+import com.github.lburgazzoli.cluster.IClusteredService;
 import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
 import com.github.lburgazzoli.karaf.hazelcast.IHazelcastManager;
 import com.github.lburgazzoli.osgi.IOSGiLifeCycle;
@@ -46,28 +47,29 @@ public class ClusterAgent
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterAgent.class);
 
-    private String m_nodeId;
-
     private ILock m_clusterLock;
     private ScheduledExecutorService m_scheduler;
     private ScheduledFuture<?> m_schedulerHander;
     private AtomicBoolean m_leader;
     private String[] m_groupIDs;
-
     private ClusterContext m_clusterContex;
-
+    private boolean m_leaderEligible;
+    private int m_leadershipCheckInterval;
+    private int m_leadershipCheckDelay;
 
     /**
      * c-tor
      */
     public ClusterAgent() {
-        m_nodeId = null;
         m_clusterLock = null;
         m_schedulerHander = null;
         m_scheduler = Executors.newScheduledThreadPool(1);
         m_leader = new AtomicBoolean(false);
         m_groupIDs = ArrayUtils.EMPTY_STRING_ARRAY;
         m_clusterContex = null;
+        m_leaderEligible = false;
+        m_leadershipCheckInterval = 60;
+        m_leadershipCheckDelay = 20;
     }
 
     // *************************************************************************
@@ -84,18 +86,34 @@ public class ClusterAgent
 
     /**
      *
-     * @param clusterId
-     */
-    public void setNodeId(String clusterId) {
-        m_nodeId = clusterId;
-    }
-
-    /**
-     *
      * @param nodeGroups
      */
     public void setNodeGroups(String nodeGroups) {
         m_groupIDs = StringUtils.split(nodeGroups, ',');
+    }
+
+    /**
+     *
+     * @param leaderEligible
+     */
+    public void setLeaderEligible(boolean leaderEligible) {
+        m_leaderEligible = leaderEligible;
+    }
+
+    /**
+     *
+     * @param leadershipCheckInterval
+     */
+    public void setLeadershipCheckInterval(int leadershipCheckInterval) {
+        m_leadershipCheckInterval = leadershipCheckInterval;
+    }
+
+    /**
+     *
+     * @param leadershipCheckDelay
+     */
+    public void setLeadershipCheckDelay(int leadershipCheckDelay) {
+        leadershipCheckDelay = leadershipCheckDelay;
     }
 
     // *************************************************************************
@@ -104,51 +122,66 @@ public class ClusterAgent
 
     @Override
     public void init() {
-        LOGGER.debug("Agent == init");
-        m_clusterLock = getHazelcastManager().getLock(Constants.CLUSTER_LOCK);
-        m_schedulerHander = m_scheduler.scheduleAtFixedRate(this,30,60,TimeUnit.SECONDS);
+        LOGGER.debug("Agent == init (eligible={})",m_leaderEligible);
 
-        m_clusterContex.getNode(m_nodeId);
+        if(m_leaderEligible) {
+            m_clusterLock = getHazelcastManager().getLock(Constants.CLUSTER_LOCK);
+
+            m_schedulerHander = m_scheduler.scheduleAtFixedRate(
+                this,m_leadershipCheckDelay,m_leadershipCheckInterval,TimeUnit.SECONDS);
+        }
+
+        m_clusterContex.getNode(m_clusterContex.getNodeId());
 
         for(String group : m_groupIDs) {
             String[] items = StringUtils.split(group,':');
-            LOGGER.debug("Items: {}",items.toString());
-
-            m_clusterContex.getServiceGroup(items[0]);
+            if(items.length == 3) {
+                m_clusterContex.getServiceGroup(
+                    m_clusterContex.getNodeId(),
+                    items[0]);
+                m_clusterContex.getService(
+                    m_clusterContex.getNodeId(),
+                    items[0],
+                    items[1]);
+            }
         }
     }
 
     @Override
     public void destroy() {
-        LOGGER.debug("Agent == destroy");
+        LOGGER.debug("Agent == destroy (eligible={})",m_leaderEligible);
 
-        m_scheduler.shutdown();
+        if(m_leaderEligible) {
+            m_scheduler.shutdown();
 
-        try {
-            LOGGER.debug("Awaiting scheduler termination");
-            m_scheduler.awaitTermination(60,TimeUnit.SECONDS);
-            LOGGER.debug("Scheduler termination done");
-        } catch (InterruptedException e) {
-            LOGGER.warn("Exception",e);
+            try {
+                LOGGER.debug("Awaiting scheduler termination");
+                m_scheduler.awaitTermination(60,TimeUnit.SECONDS);
+                LOGGER.debug("Scheduler termination done");
+            } catch (InterruptedException e) {
+                LOGGER.warn("Exception",e);
+            }
         }
 
         m_schedulerHander = null;
 
         try {
-            LOGGER.debug("Agent == remove {} from nodes", m_nodeId);
-            getLockRegistry().lock(m_nodeId);
-            getClusterRegistry().remove(m_nodeId);
-            LOGGER.debug("Agent == {} removed", m_nodeId);
+            LOGGER.debug("Agent == remove {} from nodes", m_clusterContex.getNodeId());
+            getLockRegistry().lock(m_clusterContex.getNodeId());
+            getClusterRegistry().remove(m_clusterContex.getNodeId());
+            LOGGER.debug("Agent == {} removed", m_clusterContex.getNodeId());
         } finally {
-            getLockRegistry().unlock(m_nodeId);
+            getLockRegistry().unlock(m_clusterContex.getNodeId());
         }
 
-        if(m_clusterLock != null) {
-            if(m_clusterLock.isLocked()) {
-                m_clusterLock.forceUnlock();
-            }
+        if(m_leaderEligible) {
+            if(m_clusterLock != null) {
+                if(m_clusterLock.isLocked()) {
+                    m_clusterLock.forceUnlock();
+                }
 
-            m_clusterLock = null;
+                m_clusterLock = null;
+            }
         }
 
         deactivate();
@@ -175,12 +208,12 @@ public class ClusterAgent
         m_leader.set(true);
 
         LOGGER.debug("==== ACTIVATE ====");
-        LOGGER.debug("Node <{}> is now the leader", m_nodeId);
+        LOGGER.debug("Node <{}> is now the leader", m_clusterContex.getNodeId());
     }
 
     private void deactivate() {
         LOGGER.debug("==== DEACTIVATE ====");
-        LOGGER.debug("Node <{}> is not more the leader", m_nodeId);
+        LOGGER.debug("Node <{}> is not more the leader", m_clusterContex.getNodeId());
 
         m_leader.set(false);
     }
@@ -191,22 +224,25 @@ public class ClusterAgent
 
     @Override
     public String getId() {
-        return m_nodeId;
-    }
-
-    @Override
-    public IClusteredNode getLocalNode() {
-        return m_clusterContex.getNode(m_nodeId);
+        return m_clusterContex.getNodeId();
     }
 
     @Override
     public Collection<IClusteredNode> getNodes() {
-        return Utils.downCastCollection(m_clusterContex.getNodes(),IClusteredNode.class);
+        return Utils.downCastCollection(
+            m_clusterContex.getNodes(),IClusteredNode.class);
     }
 
     @Override
     public Collection<IClusteredServiceGroup> getServiceGroups() {
-        return Utils.downCastCollection(m_clusterContex.getServiceGroups(),IClusteredServiceGroup.class);
+        return Utils.downCastCollection(
+            m_clusterContex.getServiceGroups(),IClusteredServiceGroup.class);
+    }
+
+    @Override
+    public Collection<IClusteredService> getServices() {
+        return Utils.downCastCollection(
+            m_clusterContex.getServices(),IClusteredService.class);
     }
 
     // *************************************************************************

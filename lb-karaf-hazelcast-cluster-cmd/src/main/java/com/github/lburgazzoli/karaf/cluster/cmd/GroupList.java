@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.karaf.hazelcast.cluster.cmd;
+package com.github.lburgazzoli.karaf.cluster.cmd;
 
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
 import com.github.lburgazzoli.osgi.karaf.cmd.AbstractTabularCommand;
+import com.github.lburgazzoli.osgi.karaf.cmd.CommandConstants;
 import com.github.lburgazzoli.osgi.karaf.cmd.ShellTable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.felix.gogo.commands.Command;
@@ -39,15 +40,15 @@ public class GroupList extends AbstractTabularCommand<IClusterAgent> {
 
     @Override
     protected void doExecute(IClusterAgent service, ShellTable table) throws Exception {
-        Collection<IClusteredServiceGroup> groups = service.getServiceGroups();
-        if(groups != null) {
-            for(IClusteredServiceGroup group : groups) {
-                table.addRow(
-                    StringUtils.equals(group.getNodeId(), service.getId()) ? "*" : "",
-                    group.getNodeId(),
-                    group.getGroupId(),
-                    group.getGrpupStatus());
-            }
+        Collection<IClusteredServiceGroup> values = service.getServiceGroups();
+        for(IClusteredServiceGroup value : values) {
+            table.addRow(
+                StringUtils.equals(value.getNodeId(), service.getId())
+                    ? CommandConstants.FLAG_YES
+                    : CommandConstants.FLAG_NO,
+                value.getNodeId(),
+                value.getGroupId(),
+                value.getGrpupStatus());
         }
     }
 }

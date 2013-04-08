@@ -14,11 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.karaf.hazelcast.cluster.cmd;
+package com.github.lburgazzoli.karaf.cluster.cmd;
 
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusteredNode;
 import com.github.lburgazzoli.osgi.karaf.cmd.AbstractTabularCommand;
+import com.github.lburgazzoli.osgi.karaf.cmd.CommandConstants;
 import com.github.lburgazzoli.osgi.karaf.cmd.ShellTable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.felix.gogo.commands.Command;
@@ -39,16 +40,14 @@ public class NodeList extends AbstractTabularCommand<IClusterAgent> {
 
     @Override
     protected void doExecute(IClusterAgent service, ShellTable table) throws Exception {
-        Collection<IClusteredNode> nodes = service.getNodes();
-        if(nodes != null) {
-            for(IClusteredNode node : nodes) {
-                table.addRow(
-                    StringUtils.equals(node.getNodeId(),service.getId())
-                        ? "Y"
-                        : "N",
-                    node.getNodeId(),
-                    node.getNodeAddress());
-            }
+        Collection<IClusteredNode> values = service.getNodes();
+        for(IClusteredNode value : values) {
+            table.addRow(
+                StringUtils.equals(value.getNodeId(),service.getId())
+                    ? CommandConstants.FLAG_YES
+                    : CommandConstants.FLAG_NO,
+                value.getNodeId(),
+                value.getNodeAddress());
         }
     }
 }

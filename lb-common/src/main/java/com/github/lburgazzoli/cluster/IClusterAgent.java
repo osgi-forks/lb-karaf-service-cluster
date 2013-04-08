@@ -32,12 +32,6 @@ public interface IClusterAgent {
      *
      * @return
      */
-    public IClusteredNode getLocalNode();
-
-    /**
-     *
-     * @return
-     */
     public Collection<IClusteredNode> getNodes();
 
     /**
@@ -45,4 +39,10 @@ public interface IClusterAgent {
      * @return
      */
     public Collection<IClusteredServiceGroup> getServiceGroups();
+
+    /**
+     *
+     * @return
+     */
+    public Collection<IClusteredService> getServices();
 }

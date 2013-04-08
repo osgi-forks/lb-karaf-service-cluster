@@ -56,7 +56,6 @@ public class DataUtils {
         Map<String,String> rval = Maps.newHashMap();
         if(StringUtils.isNotBlank(data)) {
             try {
-                LOGGER.debug("JsonDecode {}=<{}>",Map.class.getName(),data);
                 rval = MAPPER.readValue(data,Map.class);
             } catch (IOException e) {
                 LOGGER.warn("JsonDecode - Exception",e);
@@ -77,7 +76,6 @@ public class DataUtils {
         if(data != null) {
             try {
                 jsonData = MAPPER.writeValueAsString(data);
-                LOGGER.debug("JsonDecode {}=<{}>",data.getClass().getName(),jsonData);
             } catch (IOException e) {
                 LOGGER.warn("JsonEncode - Exception",e);
             }

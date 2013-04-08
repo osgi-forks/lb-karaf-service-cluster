@@ -17,7 +17,6 @@
 package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
 import com.github.lburgazzoli.cluster.IClusteredService;
-import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
 import com.hazelcast.core.IMap;
 
 /**
@@ -33,11 +32,6 @@ public class ClusteredServiceProxy extends DataProxy implements IClusteredServic
      */
     public ClusteredServiceProxy(String cacheKey, IMap<String, String> cacheData) {
         super(cacheKey,cacheData);
-    }
-
-    @Override
-    public IClusteredServiceGroup getParent() {
-        return null;
     }
 
     public ClusteredServiceProxy setNodeId(String id) {
