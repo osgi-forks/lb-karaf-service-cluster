@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.karaf.hazelcast.cluster;
+package com.github.lburgazzoli.karaf.hazelcast.data;
 
 import com.hazelcast.core.IMap;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  *
  */
-public class DataProxy {
+public class JsonDataProxy {
     private final String m_cacheKey;
     private final IMap<String,String> m_cacheData;
 
@@ -35,7 +35,7 @@ public class DataProxy {
      * @param cacheKey
      * @param cacheData;
      */
-    public DataProxy(String cacheKey,IMap<String,String> cacheData) {
+    public JsonDataProxy(String cacheKey, IMap<String, String> cacheData) {
         m_cacheKey = cacheKey;
         m_cacheData = cacheData;
     }
@@ -67,18 +67,20 @@ public class DataProxy {
      * @param val
      */
     protected void setValue(String key,String val) {
-        try {
-            m_cacheData.lock(m_cacheKey);
+        if(StringUtils.isNotBlank(key) && StringUtils.isNotBlank(val)) {
+            try {
+                m_cacheData.lock(m_cacheKey);
 
-            Map<String,String> values = getCachedMap();
-            values.put(key,val);
+                Map<String,String> values = getCachedMap();
+                values.put(key,val);
 
-            String cacheData = DataUtils.encode(values);
-            if(StringUtils.isNotBlank(cacheData)) {
-                m_cacheData.put(m_cacheKey,cacheData);
+                String cacheData = JsonUtils.encode(values);
+                if(StringUtils.isNotBlank(cacheData)) {
+                    m_cacheData.put(m_cacheKey,cacheData);
+                }
+            } finally {
+                m_cacheData.unlock(m_cacheKey);
             }
-        } finally {
-            m_cacheData.unlock(m_cacheKey);
         }
     }
 
@@ -87,7 +89,7 @@ public class DataProxy {
      * @return
      */
     protected Map<String,String> getCachedMap() {
-        return DataUtils.decode(m_cacheData.get(m_cacheKey));
+        return JsonUtils.decode(m_cacheData.get(m_cacheKey));
     }
 
     /**
@@ -109,7 +111,7 @@ public class DataProxy {
             return false;
         }
 
-        DataProxy rhs = (DataProxy) obj;
+        JsonDataProxy rhs = (JsonDataProxy) obj;
         return new EqualsBuilder()
             .appendSuper(super.equals(obj))
             .append(m_cacheKey, rhs.m_cacheKey)

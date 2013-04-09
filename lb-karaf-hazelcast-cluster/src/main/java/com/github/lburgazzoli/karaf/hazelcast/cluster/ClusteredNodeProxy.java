@@ -17,6 +17,7 @@
 package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
 import com.github.lburgazzoli.cluster.IClusteredNode;
+import com.github.lburgazzoli.karaf.hazelcast.data.JsonDataProxy;
 import com.hazelcast.core.IMap;
 
 import java.net.InetAddress;
@@ -24,7 +25,7 @@ import java.net.InetAddress;
 /**
  *
  */
-public class ClusteredNodeProxy extends DataProxy implements IClusteredNode {
+public class ClusteredNodeProxy extends JsonDataProxy implements IClusteredNode {
     /**
      * c-tor
      *
@@ -32,17 +33,22 @@ public class ClusteredNodeProxy extends DataProxy implements IClusteredNode {
      * @param cacheData;
      */
     public ClusteredNodeProxy(String cacheKey,IMap<String,String> cacheData) {
-        super(cacheKey, cacheData);
+        super(cacheKey,cacheData);
+        super.setValue(ClusterConstants.K_ITEM_TYPE, ClusterConstants.K_ITEM_TYPE_NODE);
     }
 
+    // *************************************************************************
+    // IClusteredNode
+    // *************************************************************************
+
     public ClusteredNodeProxy setNodeId(String id) {
-        setValue(Constants.K_NODE_ID, id);
+        setValue(ClusterConstants.K_NODE_ID, id);
         return this;
     }
 
     @Override
     public String getNodeId() {
-        return getValue(Constants.K_NODE_ID);
+        return getValue(ClusterConstants.K_NODE_ID);
     }
 
     public ClusteredNodeProxy setNodeAddress(InetAddress address) {
@@ -50,12 +56,12 @@ public class ClusteredNodeProxy extends DataProxy implements IClusteredNode {
     }
 
     public ClusteredNodeProxy setNodeAddress(String address) {
-       setValue(Constants.K_NODE_ADDRESS,address);
+       setValue(ClusterConstants.K_NODE_ADDRESS,address);
        return this;
     }
 
     @Override
     public String getNodeAddress() {
-        return getValue(Constants.K_NODE_ADDRESS);
+        return getValue(ClusterConstants.K_NODE_ADDRESS);
     }
 }

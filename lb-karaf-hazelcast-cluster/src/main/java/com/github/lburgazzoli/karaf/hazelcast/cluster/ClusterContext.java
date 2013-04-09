@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -73,18 +74,10 @@ public class ClusterContext extends HazelcastAwareObject {
 
     /**
      *
-     * @return
-     */
-    public ClusteredNodeProxy getNode() {
-        return getNode(m_nodeId);
-    }
-
-    /**
-     *
      * @param nodeId
      * @return
      */
-    public ClusteredNodeProxy getNode(String nodeId) {
+    public ClusteredNodeProxy createNode(String nodeId) {
         if(!m_nodes.containsKey(nodeId)) {
             if(!getClusterRegistry().containsKey(nodeId)) {
                 m_nodes.put(
@@ -104,20 +97,18 @@ public class ClusterContext extends HazelcastAwareObject {
 
     /**
      *
-     * @param nodeId
      * @param groupId
      *
      * @return
      */
-    public ClusteredServiceGroupProxy getServiceGroup(String nodeId,String groupId) {
+    public ClusteredServiceGroupProxy createServiceGroup(String groupId) {
         if(!m_groups.containsKey(groupId)) {
             if(!getClusterRegistry().containsKey(groupId)) {
                 m_groups.put(
                     groupId,
                     new ClusteredServiceGroupProxy(groupId, getClusterRegistry())
-                        .setNodeId(nodeId)
                         .setGroupId(groupId)
-                        .setGroupStatus(Constants.GROUP_STATE_INACTIVE));
+                        .setGroupStatus(ClusterConstants.GROUP_STATE_INACTIVE));
             } else {
                 m_groups.put(
                     groupId,
@@ -130,22 +121,20 @@ public class ClusterContext extends HazelcastAwareObject {
 
     /**
      *
-     * @param nodeId
      * @param groupId
      * @param serviceId
      *
      * @return
      */
-    public ClusteredServiceProxy getService(String nodeId,String groupId,String serviceId) {
+    public ClusteredServiceProxy createService(String groupId,String serviceId) {
         if(!m_services.containsKey(serviceId)) {
             if(!getClusterRegistry().containsKey(serviceId)) {
                 m_services.put(
                     serviceId,
                     new ClusteredServiceProxy(serviceId,getClusterRegistry())
-                        .setNodeId(nodeId)
                         .setGroupId(groupId)
                         .setServiceId(serviceId)
-                        .setServiceStatus(Constants.SERVICE_STATE_INACTIVE));
+                        .setServiceStatus(ClusterConstants.SERVICE_STATE_INACTIVE));
             } else {
                 m_services.put(
                     serviceId,
@@ -153,6 +142,37 @@ public class ClusterContext extends HazelcastAwareObject {
             }
         }
 
+        return m_services.get(serviceId);
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    /**
+     *
+     * @param nodeId
+     * @return
+     */
+    public ClusteredNodeProxy getNode(String nodeId) {
+        return m_nodes.get(nodeId);
+    }
+
+    /**
+     * @param groupId
+     *
+     * @return
+     */
+    public ClusteredServiceGroupProxy getServiceGroup(String groupId) {
+        return m_groups.get(groupId);
+    }
+
+    /**
+     * @param serviceId
+     *
+     * @return
+     */
+    public ClusteredServiceProxy getService(String serviceId) {
         return m_services.get(serviceId);
     }
 
@@ -193,7 +213,7 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public IMap<String,String> getClusterRegistry() {
-        return getHazelcastMap(Constants.REGISTRY_NODES);
+        return getHazelcastMap(ClusterConstants.REGISTRY_NODES);
     }
 
     /**
@@ -201,7 +221,7 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public IMap<String,String> getGroupRegistry() {
-        return getHazelcastMap(Constants.REGISTRY_GROUPS);
+        return getHazelcastMap(ClusterConstants.REGISTRY_GROUPS);
     }
 
     /**
@@ -209,6 +229,34 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public IMap<String,String> getLockRegistry() {
-        return getHazelcastMap(Constants.REGISTRY_LOCKS);
+        return getHazelcastMap(ClusterConstants.REGISTRY_LOCKS);
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    /**
+     *
+     * @param key
+     */
+    public void lock(String key) {
+        getLockRegistry().lock(key);
+    }
+
+    /**
+     *
+     * @param key
+     */
+    public boolean tryLock(String key,long value,TimeUnit unit) {
+        return getLockRegistry().tryLock(key,value,unit);
+    }
+
+    /**
+     *
+     * @param key
+     */
+    public void unlock(String key) {
+        getLockRegistry().unlock(key);
     }
 }

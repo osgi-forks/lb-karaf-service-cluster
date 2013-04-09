@@ -20,7 +20,6 @@ package com.github.lburgazzoli.cluster;
  *
  */
 public interface IClusteredService {
-
     /**
      *
      * @return

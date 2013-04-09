@@ -14,17 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.karaf.hazelcast.cluster;
-
-import com.github.lburgazzoli.cluster.IClusterEvent;
+package com.github.lburgazzoli.cluster;
 
 /**
  *
  */
-public class ClusterEvent implements IClusterEvent {
-    /**
-     *
-     */
-    public ClusterEvent() {
-    }
+public class ClusteredServiceConstants {
+    public static final String SERVICE_ID   = "cluster.service.id";
+    public static final String SERVICE_RANK = "cluster.service.rank";
 }

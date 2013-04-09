@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.karaf.hazelcast.cluster;
+package com.github.lburgazzoli.karaf.hazelcast.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,9 +29,9 @@ import java.util.Map;
 /**
  *
  */
-public class DataUtils {
+public class JsonUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonUtils.class);
     private static final ObjectMapper MAPPER = setupMapper();
 
     /**
