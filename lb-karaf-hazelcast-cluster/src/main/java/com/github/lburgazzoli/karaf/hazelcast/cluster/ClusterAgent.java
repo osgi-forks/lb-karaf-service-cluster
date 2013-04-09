@@ -134,7 +134,7 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
 
         for(String group : m_groupIDs) {
             String[] items = StringUtils.split(group,':');
-            if(items.length == 3) {
+            if(items.length == 2) {
                 m_clusterContex.getServiceGroup(
                     m_clusterContex.getNodeId(),
                     items[0]);
@@ -254,7 +254,6 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
      */
     @Override
     public void bind(ServiceReference reference) {
-        //TODO: needed?
     }
 
     /**
@@ -263,7 +262,6 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
      */
     @Override
     public void unbind(ServiceReference reference) {
-        //TODO: needed?
     }
 
     // *************************************************************************
