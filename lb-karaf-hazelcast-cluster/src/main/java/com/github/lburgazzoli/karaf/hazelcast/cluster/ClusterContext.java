@@ -17,6 +17,8 @@
 package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
 import com.github.lburgazzoli.karaf.hazelcast.HazelcastAwareObject;
+import com.github.lburgazzoli.karaf.hazelcast.data.JsonDataProxy;
+import com.google.common.collect.ImmutableMap;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +32,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class ClusterContext extends HazelcastAwareObject {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterContext.class);
-
-
 
     /**
      *
@@ -50,9 +50,14 @@ public class ClusterContext extends HazelcastAwareObject {
      */
     public ClusteredNodeProxy createNode(String nodeId) {
         if(!getClusterRegistry().containsKey(nodeId)) {
-            new ClusteredNodeProxy(nodeId,getClusterRegistry())
-                .setNodeId(nodeId)
-                .setNodeAddress(getHazelcastManager().getLocalAddress());
+            new JsonDataProxy(nodeId,getClusterRegistry()).setValues(
+                ImmutableMap.of(
+                    ClusterConstants.K_NODE_ID,
+                        nodeId,
+                    ClusterConstants.K_NODE_ADDRESS,
+                        getHazelcastManager().getLocalAddress().getHostAddress()
+                )
+            );
         }
 
         return new ClusteredNodeProxy(nodeId,getClusterRegistry());
@@ -66,14 +71,20 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public ClusteredServiceGroupProxy createServiceGroup(String nodeId,String groupId) {
-        if(!getClusterRegistry().containsKey(groupId)) {
-            new ClusteredServiceGroupProxy(groupId, getClusterRegistry())
-                .setNodeId(nodeId)
-                .setGroupId(groupId)
-                .setGroupStatus(ClusterConstants.GROUP_STATE_INACTIVE);
+        if(!getServiceGroupRegistry().containsKey(groupId)) {
+            new JsonDataProxy(nodeId,getServiceGroupRegistry()).setValues(
+                ImmutableMap.of(
+                    ClusterConstants.K_NODE_ID,
+                        nodeId,
+                    ClusterConstants.K_GROUP_ID,
+                        groupId,
+                    ClusterConstants.K_GROUP_STATUS,
+                        ClusterConstants.GROUP_STATUS_UNKNOWN
+                )
+            );
         }
 
-        return new ClusteredServiceGroupProxy(groupId, getClusterRegistry());
+        return new ClusteredServiceGroupProxy(groupId, getServiceGroupRegistry());
     }
 
     /**
@@ -85,15 +96,22 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public ClusteredServiceProxy createService(String nodeId,String groupId,String serviceId) {
-        if(!getClusterRegistry().containsKey(serviceId)) {
-            new ClusteredServiceProxy(serviceId,getClusterRegistry())
-                .setNodeId(nodeId)
-                .setGroupId(groupId)
-                .setServiceId(serviceId)
-                .setServiceStatus(ClusterConstants.SERVICE_STATE_INACTIVE);
+        if(!getServiceRegistry().containsKey(serviceId)) {
+            new JsonDataProxy(nodeId,getServiceGroupRegistry()).setValues(
+                ImmutableMap.of(
+                    ClusterConstants.K_NODE_ID,
+                        nodeId,
+                    ClusterConstants.K_GROUP_ID,
+                        groupId,
+                    ClusterConstants.K_SERVICE_ID,
+                        serviceId,
+                    ClusterConstants.K_SERVICE_STATUS,
+                        ClusterConstants.SERVICE_STATUS_UNKNOWN
+                )
+            );
         }
 
-        return new ClusteredServiceProxy(serviceId,getClusterRegistry());
+        return new ClusteredServiceProxy(serviceId,getServiceRegistry());
     }
 
     // *************************************************************************
@@ -171,8 +189,16 @@ public class ClusterContext extends HazelcastAwareObject {
      *
      * @return
      */
-    public IMap<String,String> getGroupRegistry() {
+    public IMap<String,String> getServiceGroupRegistry() {
         return getHazelcastMap(ClusterConstants.REGISTRY_GROUPS);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public IMap<String,String> getServiceRegistry() {
+        return getHazelcastMap(ClusterConstants.REGISTRY_SERVICES);
     }
 
     /**

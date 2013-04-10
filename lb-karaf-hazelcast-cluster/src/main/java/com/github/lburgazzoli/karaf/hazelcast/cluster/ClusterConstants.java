@@ -20,9 +20,11 @@ package com.github.lburgazzoli.karaf.hazelcast.cluster;
  *
  */
 public class ClusterConstants {
-    public static final String REGISTRY_LOCKS  = "lb.karaf.cluster.registry.locks";
-    public static final String REGISTRY_NODES  = "lb.karaf.cluster.registry.nodes";
-    public static final String REGISTRY_GROUPS = "lb.karaf.cluster.registry.groups";
+    public static final String REGISTRY_LOCKS    = "lb.karaf.cluster.registry.locks";
+    public static final String REGISTRY_NODES    = "lb.karaf.cluster.registry.nodes";
+    public static final String REGISTRY_GROUPS   = "lb.karaf.cluster.registry.groups";
+    public static final String REGISTRY_SERVICES = "lb.karaf.cluster.registry.services";
+
     public static final String SERVICE_ID      = "lb.karaf.cluster.service.id";
     public static final String SERVICE_GROUP   = "lb.karaf.cluster.service.group";
     public static final String SERVICE_RANK    = "lb.karaf.cluster.service.rank";
@@ -30,11 +32,13 @@ public class ClusterConstants {
     public static final String LOCK_CLUSTER    = "lb.karaf.cluster.lock";
     public static final String LOCK_OPERATION  = "lb.karaf.cluster.operation.lock";
 
-    public static final String GROUP_STATE_ACTIVE     = "ACTIVE";
-    public static final String GROUP_STATE_INACTIVE   = "INACTIVE";
+    public static final String GROUP_STATUS_ACTIVE     = "ACTIVE";
+    public static final String GROUP_STATUS_INACTIVE   = "INACTIVE";
+    public static final String GROUP_STATUS_UNKNOWN    = "UNKNOWN";
 
-    public static final String SERVICE_STATE_ACTIVE   = "ACTIVE";
-    public static final String SERVICE_STATE_INACTIVE = "INACTIVE";
+    public static final String SERVICE_STATUS_ACTIVE   = "ACTIVE";
+    public static final String SERVICE_STATUS_INACTIVE = "INACTIVE";
+    public static final String SERVICE_STATUS_UNKNOWN  = "UNKNOWN";
 
     public static final String K_ITEM_TYPE               = "type";
     public static final String K_ITEM_TYPE_NODE          = "node";

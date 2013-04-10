@@ -86,11 +86,10 @@ public class JsonDataProxy {
 
     /**
      *
-     * @param key
      * @param values
      */
-    public void setValues(String key,Map<String,String> values) {
-        if(StringUtils.isNotBlank(key) && !values.isEmpty()) {
+    public void setValues(Map<String,String> values) {
+        if(!values.isEmpty()) {
             try {
                 m_cacheData.lock(m_cacheKey);
 
