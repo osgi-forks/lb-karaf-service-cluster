@@ -9,7 +9,6 @@
     <cm:property-placeholder persistent-id="com.github.lburgazzoli.karaf.hazelcast.cluster" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="node.id"                    value="ha"/>
-            <cm:property name="node.groups"                value=""/>
             <cm:property name="node.leader.eligible"       value="false"/>
             <cm:property name="node.leader.check.delay"    value="30"/>
             <cm:property name="node.leader.check.interval" value="60"/>
@@ -34,7 +33,6 @@
           scope          = "singleton">
         <property name="bundleContext"    ref="blueprintBundleContext"/>
         <property name="hazelcastManager" ref="karaf-hazelcast-manager"/>
-        <property name="nodeId"           value="${node.id}"/>
     </bean>
 
     <bean id             = "karaf-cluster-agent"
@@ -42,11 +40,11 @@
           init-method    = "init"
           destroy-method = "destroy"
           scope          = "singleton">
-        <property name="clusterContext"          ref="karaf-cluster-context"/>
-        <property name="nodeGroups"              value="${node.groups}"/>
+        <property name="nodeId"                  value="${node.id}"/>
         <property name="leaderEligible"          value="${node.leader.eligible}"/>
         <property name="leadershipCheckInterval" value="${node.leader.check.interval}"/>
         <property name="leadershipCheckDelay"    value="${node.leader.check.delay}"/>
+        <property name="clusterContext"          ref="karaf-cluster-context"/>
 
     </bean>
 

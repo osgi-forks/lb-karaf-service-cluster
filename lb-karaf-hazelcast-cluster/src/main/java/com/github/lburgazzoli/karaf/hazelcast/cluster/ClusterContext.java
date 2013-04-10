@@ -17,13 +17,12 @@
 package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
 import com.github.lburgazzoli.karaf.hazelcast.HazelcastAwareObject;
-import com.google.common.collect.Maps;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,40 +31,12 @@ import java.util.concurrent.TimeUnit;
 public class ClusterContext extends HazelcastAwareObject {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterContext.class);
 
-    private final Map<String,ClusteredNodeProxy> m_nodes;
-    private final Map<String,ClusteredServiceGroupProxy> m_groups;
-    private final Map<String,ClusteredServiceProxy> m_services;
 
-    private String m_nodeId;
 
     /**
      *
      */
     public ClusterContext() {
-        m_nodeId   = null;
-        m_nodes    = Maps.newConcurrentMap();
-        m_groups   = Maps.newConcurrentMap();
-        m_services = Maps.newConcurrentMap();
-    }
-
-    // *************************************************************************
-    //
-    // *************************************************************************
-
-    /**
-     *
-     * @param nodeId
-     */
-    public void setNodeId(String nodeId){
-        m_nodeId = nodeId;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getNodeId(){
-        return m_nodeId;
     }
 
     // *************************************************************************
@@ -78,71 +49,51 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public ClusteredNodeProxy createNode(String nodeId) {
-        if(!m_nodes.containsKey(nodeId)) {
-            if(!getClusterRegistry().containsKey(nodeId)) {
-                m_nodes.put(
-                    nodeId,
-                    new ClusteredNodeProxy(nodeId,getClusterRegistry())
-                        .setNodeId(nodeId)
-                        .setNodeAddress(getHazelcastManager().getLocalAddress()));
-            } else {
-                m_nodes.put(
-                    nodeId,
-                    new ClusteredNodeProxy(nodeId,getClusterRegistry()));
-            }
+        if(!getClusterRegistry().containsKey(nodeId)) {
+            new ClusteredNodeProxy(nodeId,getClusterRegistry())
+                .setNodeId(nodeId)
+                .setNodeAddress(getHazelcastManager().getLocalAddress());
         }
 
-        return m_nodes.get(nodeId);
+        return new ClusteredNodeProxy(nodeId,getClusterRegistry());
     }
 
     /**
      *
+     * @param nodeId
      * @param groupId
      *
      * @return
      */
-    public ClusteredServiceGroupProxy createServiceGroup(String groupId) {
-        if(!m_groups.containsKey(groupId)) {
-            if(!getClusterRegistry().containsKey(groupId)) {
-                m_groups.put(
-                    groupId,
-                    new ClusteredServiceGroupProxy(groupId, getClusterRegistry())
-                        .setGroupId(groupId)
-                        .setGroupStatus(ClusterConstants.GROUP_STATE_INACTIVE));
-            } else {
-                m_groups.put(
-                    groupId,
-                    new ClusteredServiceGroupProxy(groupId,getClusterRegistry()));
-            }
+    public ClusteredServiceGroupProxy createServiceGroup(String nodeId,String groupId) {
+        if(!getClusterRegistry().containsKey(groupId)) {
+            new ClusteredServiceGroupProxy(groupId, getClusterRegistry())
+                .setNodeId(nodeId)
+                .setGroupId(groupId)
+                .setGroupStatus(ClusterConstants.GROUP_STATE_INACTIVE);
         }
 
-        return m_groups.get(groupId);
+        return new ClusteredServiceGroupProxy(groupId, getClusterRegistry());
     }
 
     /**
      *
+     * @param nodeId
      * @param groupId
      * @param serviceId
      *
      * @return
      */
-    public ClusteredServiceProxy createService(String groupId,String serviceId) {
-        if(!m_services.containsKey(serviceId)) {
-            if(!getClusterRegistry().containsKey(serviceId)) {
-                m_services.put(
-                    serviceId,
-                    new ClusteredServiceProxy(serviceId,getClusterRegistry())
-                        .setGroupId(groupId)
-                        .setServiceId(serviceId)
-                        .setServiceStatus(ClusterConstants.SERVICE_STATE_INACTIVE));
-            } else {
-                m_services.put(
-                    serviceId,
-                    new ClusteredServiceProxy(serviceId,getClusterRegistry()));
-            }
+    public ClusteredServiceProxy createService(String nodeId,String groupId,String serviceId) {
+        if(!getClusterRegistry().containsKey(serviceId)) {
+            new ClusteredServiceProxy(serviceId,getClusterRegistry())
+                .setNodeId(nodeId)
+                .setGroupId(groupId)
+                .setServiceId(serviceId)
+                .setServiceStatus(ClusterConstants.SERVICE_STATE_INACTIVE);
         }
 
-        return m_services.get(serviceId);
+        return new ClusteredServiceProxy(serviceId,getClusterRegistry());
     }
 
     // *************************************************************************
@@ -155,7 +106,7 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public ClusteredNodeProxy getNode(String nodeId) {
-        return m_nodes.get(nodeId);
+        return null;
     }
 
     /**
@@ -164,7 +115,7 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public ClusteredServiceGroupProxy getServiceGroup(String groupId) {
-        return m_groups.get(groupId);
+        return null;
     }
 
     /**
@@ -173,7 +124,7 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public ClusteredServiceProxy getService(String serviceId) {
-        return m_services.get(serviceId);
+        return null;
     }
 
     // *************************************************************************
@@ -185,7 +136,7 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public Collection<ClusteredNodeProxy> getNodes() {
-        return m_nodes.values();
+        return new ArrayList<ClusteredNodeProxy>();
     }
 
     /**
@@ -193,7 +144,7 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public Collection<ClusteredServiceGroupProxy> getServiceGroups() {
-        return m_groups.values();
+        return new ArrayList<ClusteredServiceGroupProxy>();
     }
 
     /**
@@ -201,7 +152,7 @@ public class ClusterContext extends HazelcastAwareObject {
      * @return
      */
     public Collection<ClusteredServiceProxy> getServices() {
-        return m_services.values();
+        return new ArrayList<ClusteredServiceProxy>();
     }
 
     // *************************************************************************

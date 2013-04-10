@@ -45,14 +45,14 @@ public class JsonDataProxy {
      * @param key
      * @return
      */
-    protected String getValue(String key) {
+    public String getValue(String key) {
         String result = StringUtils.EMPTY;
         try {
             m_cacheData.lock(m_cacheKey);
 
-            Map<String,String> values = getCachedMap();
-            if(values.containsKey(key)) {
-                result = values.get(key);
+            Map<String,String> dataMap = getCachedMap();
+            if(dataMap.containsKey(key)) {
+                result = dataMap.get(key);
             }
         } finally {
             m_cacheData.unlock(m_cacheKey);
@@ -66,15 +66,38 @@ public class JsonDataProxy {
      * @param key
      * @param val
      */
-    protected void setValue(String key,String val) {
+    public void setValue(String key,String val) {
         if(StringUtils.isNotBlank(key) && StringUtils.isNotBlank(val)) {
             try {
                 m_cacheData.lock(m_cacheKey);
 
-                Map<String,String> values = getCachedMap();
-                values.put(key,val);
+                Map<String,String> dataMap = getCachedMap();
+                dataMap.put(key,val);
 
-                String cacheData = JsonUtils.encode(values);
+                String cacheData = JsonUtils.encode(dataMap);
+                if(StringUtils.isNotBlank(cacheData)) {
+                    m_cacheData.put(m_cacheKey,cacheData);
+                }
+            } finally {
+                m_cacheData.unlock(m_cacheKey);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param key
+     * @param values
+     */
+    public void setValues(String key,Map<String,String> values) {
+        if(StringUtils.isNotBlank(key) && !values.isEmpty()) {
+            try {
+                m_cacheData.lock(m_cacheKey);
+
+                Map<String,String> dataMap = getCachedMap();
+                dataMap.putAll(values);
+
+                String cacheData = JsonUtils.encode(dataMap);
                 if(StringUtils.isNotBlank(cacheData)) {
                     m_cacheData.put(m_cacheKey,cacheData);
                 }
@@ -88,7 +111,7 @@ public class JsonDataProxy {
      *
      * @return
      */
-    protected Map<String,String> getCachedMap() {
+    public Map<String,String> getCachedMap() {
         return JsonUtils.decode(m_cacheData.get(m_cacheKey));
     }
 

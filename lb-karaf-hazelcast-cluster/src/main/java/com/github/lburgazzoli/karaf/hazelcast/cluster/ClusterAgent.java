@@ -16,20 +16,17 @@
  */
 package com.github.lburgazzoli.karaf.hazelcast.cluster;
 
-import com.github.lburgazzoli.Utils;
-import com.github.lburgazzoli.cluster.ClusteredServiceConstants;
 import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusteredNode;
 import com.github.lburgazzoli.cluster.IClusteredService;
 import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
 import com.github.lburgazzoli.osgi.IOSGiLifeCycle;
 import com.github.lburgazzoli.osgi.IOSGiServiceListener;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,8 +44,8 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
     private ScheduledExecutorService m_scheduler;
     private ScheduledFuture<?> m_schedulerHander;
     private AtomicBoolean m_leader;
-    private String[] m_groupIDs;
     private ClusterContext m_clusterContex;
+    private String m_nodeId;
     private boolean m_leaderEligible;
     private int m_leadershipCheckInterval;
     private int m_leadershipCheckDelay;
@@ -60,8 +57,8 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
         m_schedulerHander = null;
         m_scheduler = Executors.newScheduledThreadPool(1);
         m_leader = new AtomicBoolean(false);
-        m_groupIDs = ArrayUtils.EMPTY_STRING_ARRAY;
         m_clusterContex = null;
+        m_nodeId = null;
         m_leaderEligible = false;
         m_leadershipCheckInterval = 60;
         m_leadershipCheckDelay = 20;
@@ -81,10 +78,10 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
 
     /**
      *
-     * @param nodeGroups
+     * @param nodeId
      */
-    public void setNodeGroups(String nodeGroups) {
-        m_groupIDs = StringUtils.split(nodeGroups, ',');
+    public void setNodeId(String nodeId) {
+        m_nodeId = nodeId;
     }
 
     /**
@@ -124,23 +121,7 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
                 this,m_leadershipCheckDelay,m_leadershipCheckInterval,TimeUnit.SECONDS);
         }
 
-        m_clusterContex.lock(ClusterConstants.LOCK_OPERATION);
-
-        try {
-            m_clusterContex.createNode(m_clusterContex.getNodeId());
-
-            for(String group : m_groupIDs) {
-                String[] items = StringUtils.split(group,':');
-                if(items.length == 2) {
-                    m_clusterContex.createServiceGroup(items[0])
-                        .registerService(items[1]);
-
-                    m_clusterContex.createService(items[0],items[1]);
-                }
-            }
-        } finally {
-            m_clusterContex.unlock(ClusterConstants.LOCK_OPERATION);
-        }
+        m_clusterContex.createNode(m_nodeId);
     }
 
     @Override
@@ -162,12 +143,12 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
         m_schedulerHander = null;
 
         try {
-            LOGGER.debug("Agent == remove {} from nodes", m_clusterContex.getNodeId());
-            m_clusterContex.lock(m_clusterContex.getNodeId());
-            m_clusterContex.getClusterRegistry().remove(m_clusterContex.getNodeId());
-            LOGGER.debug("Agent == {} removed", m_clusterContex.getNodeId());
+            LOGGER.debug("Agent == remove {} from nodes", m_nodeId);
+            m_clusterContex.lock(m_nodeId);
+            m_clusterContex.getClusterRegistry().remove(m_nodeId);
+            LOGGER.debug("Agent == {} removed", m_nodeId);
         } finally {
-            m_clusterContex.unlock(m_clusterContex.getNodeId());
+            m_clusterContex.unlock(m_nodeId);
         }
 
         if(m_leaderEligible) {
@@ -198,12 +179,12 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
         m_leader.set(true);
 
         LOGGER.debug("==== ACTIVATE ====");
-        LOGGER.debug("Node <{}> is now the leader", m_clusterContex.getNodeId());
+        LOGGER.debug("Node <{}> is now the leader", m_nodeId);
     }
 
     private void deactivate() {
         LOGGER.debug("==== DEACTIVATE ====");
-        LOGGER.debug("Node <{}> is not more the leader", m_clusterContex.getNodeId());
+        LOGGER.debug("Node <{}> is not more the leader", m_nodeId);
 
         m_leader.set(false);
     }
@@ -214,25 +195,28 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
 
     @Override
     public String getId() {
-        return m_clusterContex.getNodeId();
+        return m_nodeId;
     }
 
     @Override
     public Collection<IClusteredNode> getNodes() {
-        return Utils.downCastCollection(
-            m_clusterContex.getNodes(),IClusteredNode.class);
+        return new ArrayList<IClusteredNode>();
+        //return Utils.downCastCollection(
+        //    m_clusterContex.getNodes(),IClusteredNode.class);
     }
 
     @Override
     public Collection<IClusteredServiceGroup> getServiceGroups() {
-        return Utils.downCastCollection(
-            m_clusterContex.getServiceGroups(),IClusteredServiceGroup.class);
+        return new ArrayList<IClusteredServiceGroup>();
+        //return Utils.downCastCollection(
+        //    m_clusterContex.getServiceGroups(),IClusteredServiceGroup.class);
     }
 
     @Override
     public Collection<IClusteredService> getServices() {
-        return Utils.downCastCollection(
-            m_clusterContex.getServices(),IClusteredService.class);
+        return new ArrayList<IClusteredService>();
+        //Utils.downCastCollection(
+        //    m_clusterContex.getServices(),IClusteredService.class);
     }
 
     // *************************************************************************
@@ -245,6 +229,7 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
      */
     @Override
     public void bind(ServiceReference reference) {
+        /*
         String serviceId = (String)reference.getProperty(ClusteredServiceConstants.SERVICE_ID);
         if(StringUtils.isNotBlank(serviceId)) {
             ClusteredServiceProxy service = m_clusterContex.getService(serviceId);
@@ -252,11 +237,10 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
                 String groupId = service.getGroupId();
                 ClusteredServiceGroupProxy serviceGroup = m_clusterContex.getServiceGroup(groupId);
                 if(serviceGroup != null) {
-                    serviceGroup.registerService(
-                        (IClusteredService)m_clusterContex.getBundleContext().getService(reference));
                 }
             }
         }
+        */
     }
 
     /**
@@ -265,6 +249,7 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
      */
     @Override
     public void unbind(ServiceReference reference) {
+        /*
         String serviceId = (String)reference.getProperty(ClusteredServiceConstants.SERVICE_ID);
         if(StringUtils.isNotBlank(serviceId)) {
             ClusteredServiceProxy service = m_clusterContex.getService(serviceId);
@@ -272,9 +257,9 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
                 String groupId = service.getGroupId();
                 ClusteredServiceGroupProxy serviceGroup = m_clusterContex.getServiceGroup(groupId);
                 if(serviceGroup != null) {
-                    serviceGroup.unregisterService(serviceId);
                 }
             }
         }
+        */
     }
 }
