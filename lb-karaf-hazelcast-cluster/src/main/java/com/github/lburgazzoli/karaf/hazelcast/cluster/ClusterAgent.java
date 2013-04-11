@@ -46,6 +46,7 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
     private AtomicBoolean m_leader;
     private ClusterContext m_clusterContex;
     private String m_nodeId;
+    private String m_nodeConfig;
     private boolean m_leaderEligible;
     private int m_leadershipCheckInterval;
     private int m_leadershipCheckDelay;
@@ -59,6 +60,7 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
         m_leader = new AtomicBoolean(false);
         m_clusterContex = null;
         m_nodeId = null;
+        m_nodeConfig = null;
         m_leaderEligible = false;
         m_leadershipCheckInterval = 60;
         m_leadershipCheckDelay = 20;
@@ -74,6 +76,14 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
      */
     public void setClusterContext(ClusterContext clusterContex) {
         m_clusterContex = clusterContex;
+    }
+
+    /**
+     *
+     * @param nodeConfig
+     */
+    public void setNodeConfiguration(String nodeConfig) {
+        m_nodeConfig = nodeConfig;
     }
 
     /**

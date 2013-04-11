@@ -20,6 +20,8 @@ package com.github.lburgazzoli.karaf.hazelcast.cluster;
  *
  */
 public class ClusterConstants {
+    public static final String PID = "com.github.lburgazzoli.karaf.hazelcast.cluster";
+
     public static final String REGISTRY_LOCKS    = "lb.karaf.cluster.registry.locks";
     public static final String REGISTRY_NODES    = "lb.karaf.cluster.registry.nodes";
     public static final String REGISTRY_GROUPS   = "lb.karaf.cluster.registry.groups";

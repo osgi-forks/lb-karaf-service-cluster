@@ -17,11 +17,21 @@
 package com.github.lburgazzoli.osgi;
 
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 /**
  *
  */
 public class OSGiUtils {
+    private static Logger LOGGER = LoggerFactory.getLogger(OSGiUtils.class);
+
     /**
      *
      * @param reference
@@ -40,5 +50,24 @@ public class OSGiUtils {
      */
     public static Integer getInteger(final ServiceReference reference,final String key) {
         return (Integer)reference.getProperty(key);
+    }
+
+    /**
+     *
+     * @param configAdmin
+     * @param pid
+     * @return
+     */
+    public static Dictionary<String,Object> getProperties(ConfigurationAdmin configAdmin,String pid) {
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        try {
+            Configuration config = configAdmin.getConfiguration(pid);
+            properties = config.getProperties();
+        }
+        catch (IOException e) {
+            LOGGER.warn("Exception",e);
+        }
+
+        return properties;
     }
 }
