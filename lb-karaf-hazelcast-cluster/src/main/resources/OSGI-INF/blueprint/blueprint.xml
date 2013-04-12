@@ -45,9 +45,6 @@
         id        = "karaf-hazelcast-manager"
         interface = "com.github.lburgazzoli.karaf.hazelcast.IHazelcastManager"
         filter    = "(osgi.jndi.service.name=karaf-hazelcast-manager)"/>
-    <reference
-        id        = "karaf-config-admin"
-        interface = "org.osgi.service.cm.ConfigurationAdmin"/>
 
     <!-- ******************************************************************* -->
     <!--                                                                     -->

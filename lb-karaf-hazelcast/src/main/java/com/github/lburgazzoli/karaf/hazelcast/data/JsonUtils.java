@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -48,12 +49,28 @@ public class JsonUtils {
 
     /**
      *
+     * @param path
+     * @return
+     */
+    public static <K,V> Map<K,V> readFile(String path) {
+        Map<K,V> rval = Maps.newHashMap();
+        try {
+            rval = MAPPER.readValue(new File(path),Map.class);
+        } catch (IOException e) {
+            LOGGER.warn("JsonDecode - Exception",e);
+        }
+
+        return rval;
+    }
+
+    /**
+     *
      * @param data
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static Map<String,String> decode(String data) {
-        Map<String,String> rval = Maps.newHashMap();
+    public static <K,V> Map<K,V> decode(String data) {
+        Map<K,V> rval = Maps.newHashMap();
         if(StringUtils.isNotBlank(data)) {
             try {
                 rval = MAPPER.readValue(data,Map.class);
@@ -70,7 +87,7 @@ public class JsonUtils {
      * @param data
      * @return
      */
-    public static String encode(Map<String,String> data) {
+    public static <K,V> String encode(Map<K,V> data) {
         String jsonData = null;
 
         if(data != null) {

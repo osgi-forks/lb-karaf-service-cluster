@@ -20,6 +20,7 @@ import com.github.lburgazzoli.cluster.IClusterAgent;
 import com.github.lburgazzoli.cluster.IClusteredNode;
 import com.github.lburgazzoli.cluster.IClusteredService;
 import com.github.lburgazzoli.cluster.IClusteredServiceGroup;
+import com.github.lburgazzoli.karaf.hazelcast.data.JsonUtils;
 import com.github.lburgazzoli.osgi.IOSGiLifeCycle;
 import com.github.lburgazzoli.osgi.IOSGiServiceListener;
 import org.osgi.framework.ServiceReference;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -115,7 +117,7 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
      * @param leadershipCheckDelay
      */
     public void setLeadershipCheckDelay(int leadershipCheckDelay) {
-        leadershipCheckDelay = leadershipCheckDelay;
+        m_leadershipCheckDelay = leadershipCheckDelay;
     }
 
     // *************************************************************************
@@ -132,6 +134,20 @@ public class ClusterAgent implements IClusterAgent, IOSGiServiceListener, IOSGiL
         }
 
         m_clusterContex.createNode(m_nodeId);
+
+        Map<String,Object> root  = JsonUtils.readFile(m_nodeConfig);
+
+        /*
+        Map<String,Object> nodes = (Map<String,Object>)root.get("nodes");
+
+        for(String nodeName : nodes.keySet()) {
+            LOGGER.debug("Node : {}",nodeName);
+            Map<String,Object> groups = (Map<String,Object>)nodes.get("groups");
+            for(Map.Entry<String,Object> node : groups.entrySet()) {
+                LOGGER.debug("Group : {}",node);
+            }
+        }
+        */
     }
 
     @Override
