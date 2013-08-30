@@ -27,6 +27,12 @@ public interface IHazelcastSession {
      *
      * @return
      */
+    public String getName();
+
+    /**
+     *
+     * @return
+     */
     public HazelcastInstance getInstance();
 
     /**

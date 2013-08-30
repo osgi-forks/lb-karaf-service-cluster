@@ -13,20 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.lburgazzoli.karaf.cluster.common;
+package com.github.lburgazzoli.karaf.cluster.agent;
 
 /**
  *
  */
-public interface IClusteredService extends ILifecycle {
-
-    /**
-     *
-     */
-    public void start();
-
-    /**
-     *
-     */
-    public void stop();
+public class AgentConstants {
+    public static final String MAP_NODES   = "hz-karaf-nodes";
+    public static final String MAP_SERVICE = "hz-karaf-service";
 }

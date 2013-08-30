@@ -27,13 +27,16 @@ public class HazelcastSession implements ILifecycle, IHazelcastSession {
 
     private HazelcastInstance m_instance;
     private final HazelcastConfig m_config;
+    private final String m_name;
 
     /**
      * c-tor
      *
+     * @param name
      * @param config
      */
-    public HazelcastSession(HazelcastConfig config) {
+    public HazelcastSession(String name,HazelcastConfig config) {
+        m_name = name;
         m_instance = null;
         m_config = config;
     }
@@ -60,6 +63,11 @@ public class HazelcastSession implements ILifecycle, IHazelcastSession {
     // *************************************************************************
     //
     // *************************************************************************
+
+    @Override
+    public String getName() {
+        return m_name;
+    }
 
     @Override
     public Config getConfiguration() {
