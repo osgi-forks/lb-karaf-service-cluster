@@ -1,0 +1,19 @@
+project.ext {
+    bundleInportPackages = [
+        '*'
+    ]
+
+    bundleExportPackages = [
+        '*'
+    ]
+}
+
+dependencies {
+}
+
+jar {
+    manifest {
+        instruction 'Import-Package' , bundleInportPackages.join(',')
+        instruction 'Export-Package' , bundleExportPackages.join(',')
+    }
+}
