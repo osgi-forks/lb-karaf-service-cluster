@@ -1,7 +1,1 @@
 
-include "lb-common"
-include "lb-karaf-hazelcast"
-include "lb-karaf-hazelcast-cmd"
-include "lb-karaf-hazelcast-cluster"
-include "lb-karaf-hazelcast-cluster-cmd"
-
